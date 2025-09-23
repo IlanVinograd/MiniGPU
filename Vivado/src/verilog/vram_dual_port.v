@@ -19,7 +19,7 @@ module vram_dual_clock #(
     (* ram_style = "block", keep = "true" *)
     reg [7:0] MEM [0:TOTAL_BYTES-1];
 
-    initial $readmemh("C:/Users/ilanv/fpga/GPU/GPU.srcs/sources_1/new/frame1.hex", MEM);
+    initial $readmemh("frame1.hex", MEM);
 
     always @(posedge CLK_A) begin
         if (WE_A) MEM[ADDR_A] <= DATA_A;

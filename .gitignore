@@ -218,3 +218,7 @@ __marimo__/
 *.xpr
 Vivado/.build/
 Vivado/dfx_runtime.txt
+*.hex
+vga.gen/
+.vivado_gen/
+*.str
