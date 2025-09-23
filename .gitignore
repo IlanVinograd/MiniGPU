@@ -205,3 +205,15 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+*.runs/
+*.cache/
+*.hw/
+*.sim/
+*.ip_user_files/
+*.Xil/
+*.jou
+*.log
+*.dcp
+*.xpr
+Vivado/.build/
