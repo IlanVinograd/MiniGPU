@@ -222,3 +222,4 @@ Vivado/dfx_runtime.txt
 vga.gen/
 .vivado_gen/
 *.str
+Vivado/GPU/dfx_runtime.txt
