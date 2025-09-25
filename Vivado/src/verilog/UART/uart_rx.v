@@ -5,9 +5,9 @@ module uart_rx #(
     input  wire rst,
     input  wire os_tick,    // 16×baud
     input  wire RX,
-    output reg  [7:0] data_out,   // принятый байт
-    output reg        valid_out,  // импульс на 1 clk
-    output reg        framing_err // стоп-бит был не '1'
+    output reg  [7:0] data_out,
+    output reg        valid_out,
+    output reg        framing_err
 );
     reg [7:0] sh;
     reg [$clog2(OS)-1:0] os_cnt;
