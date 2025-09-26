@@ -1,7 +1,10 @@
 `timescale 1ns / 1ps
 
-module vga_basic(
+module vga_basic #(
+    parameter ADDR_W = 17
+)(
     input  CLK,
+    input  [ADDR_W-1:0] BASE_ADDR,
     output HS,
     output VS,
     output [3:0] RED,
@@ -26,7 +29,7 @@ module vga_basic(
 
     scanout_rgb332_scaled scan(
         .clk25(clk25), .x(x), .y(y), .blank(blank),
-        .vram_q(vram_q), .vram_addr(vram_addr), .BASE_ADDR(17'b0),
+        .vram_q(vram_q), .vram_addr(vram_addr), .BASE_ADDR(BASE_ADDR),
         .RED(RED), .GREEN(GREEN), .BLUE(BLUE)
     );
 

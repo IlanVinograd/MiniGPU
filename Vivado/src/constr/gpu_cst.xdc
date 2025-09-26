@@ -20,6 +20,13 @@ set_property PACKAGE_PIN L18 [get_ports {BLUE[1]}]
 set_property PACKAGE_PIN N18 [get_ports {BLUE[0]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {BLUE[*]}]
 
-set_property PACKAGE_PIN P19 [get_ports HS]
-set_property PACKAGE_PIN R19 [get_ports VS]
+set_property PACKAGE_PIN P19     [get_ports HS]
+set_property PACKAGE_PIN R19     [get_ports VS]
 set_property IOSTANDARD LVCMOS33 [get_ports {HS VS}]
+
+set_property PACKAGE_PIN B18     [get_ports RX]
+set_property IOSTANDARD LVCMOS33 [get_ports RX]
+set_property PULLUP true         [get_ports RX]
+
+set_property PACKAGE_PIN U18     [get_ports rst]
+set_property IOSTANDARD LVCMOS33 [get_ports rst]
