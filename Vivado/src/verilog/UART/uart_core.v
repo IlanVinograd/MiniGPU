@@ -2,7 +2,8 @@
 
 module uart_core #(
     parameter integer FCLK_HZ = 100_000_000,
-    parameter integer BAUD    = 115200
+    parameter integer BAUD    = 3_125_000,
+    parameter integer OS      = 16
 )(
     input  wire CLK,
     input  wire rst,
@@ -22,7 +23,7 @@ module uart_core #(
     baud_gen #(
         .FCLK_HZ(FCLK_HZ),
         .BAUD(BAUD),
-        .OS(16)
+        .OS(OS)
     ) u_baud (
         .CLK(CLK),
         .rst(rst),
@@ -31,7 +32,7 @@ module uart_core #(
     );
 
     uart_rx #(
-        .OS(16)
+        .OS(OS)
     ) u_rx (
         .CLK(CLK),
         .rst(rst),

@@ -20,13 +20,23 @@ set_property PACKAGE_PIN L18 [get_ports {BLUE[1]}]
 set_property PACKAGE_PIN N18 [get_ports {BLUE[0]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {BLUE[*]}]
 
-set_property PACKAGE_PIN P19     [get_ports HS]
-set_property PACKAGE_PIN R19     [get_ports VS]
+set_property PACKAGE_PIN P19 [get_ports HS]
+set_property PACKAGE_PIN R19 [get_ports VS]
 set_property IOSTANDARD LVCMOS33 [get_ports {HS VS}]
 
-set_property PACKAGE_PIN B18     [get_ports RX]
+set_property PACKAGE_PIN B18 [get_ports RX]
 set_property IOSTANDARD LVCMOS33 [get_ports RX]
-set_property PULLUP true         [get_ports RX]
+set_property PULLUP true [get_ports RX]
 
-set_property PACKAGE_PIN U18     [get_ports rst]
+set_property PACKAGE_PIN A18 [get_ports TX]
+set_property IOSTANDARD LVCMOS33 [get_ports TX]
+
+set_property PACKAGE_PIN U18 [get_ports rst]
 set_property IOSTANDARD LVCMOS33 [get_ports rst]
+
+create_generated_clock -name pix_clk -source [get_ports CLK] -divide_by 4 [get_pins -hier *clk_wiz_0*/clk_out1]
+
+set_clock_groups -asynchronous -group [get_clocks sys_clk_pin] -group [get_clocks pix_clk]
+
+set_false_path -from [get_ports RX] -to [get_pins -hier *rx_meta*/D]
+set_false_path -from [get_ports RX] -to [get_pins -hier *rx_sync*/D]
