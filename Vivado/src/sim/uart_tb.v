@@ -4,20 +4,23 @@ module uart_tb;
   localparam integer CLK_PERIOD_NS = 10;
   localparam integer FCLK_HZ       = 100_000_000;
   localparam integer BAUD          = 3_125_000;
-  localparam integer OS            = 16;     
+  localparam integer OS            = 16;
+  localparam integer BIT_CLKS      = FCLK_HZ / BAUD;
 
   reg  CLK = 1'b0;
   reg  rst = 1'b1;
 
-  wire TX;
-  wire RX;
-
   wire [7:0] rx_data;
   wire       rx_valid;
 
-  reg  [7:0] tx_data;
-  reg        tx_valid;
-  wire       tx_ready;
+  wire [8*256-1:0] pkt_bus;
+  wire             pkt_valid;
+  wire [8:0]       pkt_len;
+  wire             err_len, err_crc;
+
+  reg  rx_line;
+  wire RX;
+  assign RX = rx_line;
 
   uart_core #(
     .FCLK_HZ(FCLK_HZ),
@@ -27,140 +30,190 @@ module uart_tb;
     .CLK(CLK),
     .rst(rst),
     .RX(RX),
-    .TX(TX),
+    .TX(),
     .rx_data(rx_data),
     .rx_valid(rx_valid),
-    .tx_data(tx_data),
-    .tx_valid(tx_valid),
-    .tx_ready(tx_ready)
+    .tx_data(8'h00),
+    .tx_valid(1'b0),
+    .tx_ready()
   );
 
-  assign RX = TX;
+  packet_assembler #(
+    .SIZE(256),
+    .SYNC(8'hAA)
+  ) PA (
+    .CLK(CLK),
+    .rst(rst),
+    .data_out(rx_data),
+    .valid_out(rx_valid),
+    .fifo_ready(1'b1),
+    .fifo_full(1'b0),
+    .packet(pkt_bus),
+    .valid_packet(pkt_valid),
+    .packet_len(pkt_len),
+    .err_len(err_len),
+    .err_crc(err_crc)
+  );
 
   always #(CLK_PERIOD_NS/2) CLK = ~CLK;
 
-  reg [7:0] exp [0:4095];
-  integer wr_ptr = 0;
-  integer rd_ptr = 0;
-  integer total  = 0;
-
-  reg [7:0] pkt0 [0:63];
-  reg [7:0] pkt1 [0:63];
-  reg [7:0] pkt2 [0:63];
-
-  task automatic push_exp(input [7:0] b);
-  begin
-    exp[wr_ptr] = b;
-    wr_ptr = wr_ptr + 1;
-    total  = total + 1;
-  end
-  endtask
-
-  task automatic send_byte(input [7:0] b);
-  begin
-    @(posedge CLK);
-    wait (tx_ready);
-    tx_data  <= b;
-    tx_valid <= 1'b1;
-    @(posedge CLK);
-    tx_valid <= 1'b0;
-  end
-  endtask
-
-  task automatic send_packet(input [7:0] cmd, input integer len, input integer base_idx, input integer which);
-    integer i;
-    reg [7:0] sum;
-    reg [7:0] pay;
-  begin
-    $display("[%0t] PKT start cmd=%02h len=%0d", $time, cmd, len);
-    sum = 8'h00;
-
-    send_byte(8'hAA); push_exp(8'hAA); sum = sum + 8'hAA;
-    send_byte(cmd);   push_exp(cmd);   sum = sum + cmd;
-    send_byte(len[7:0]); push_exp(len[7:0]); sum = sum + len[7:0];
-
-    for (i = 0; i < len; i = i + 1) begin
-      case (which)
-        0: pay = pkt0[base_idx + i];
-        1: pay = pkt1[base_idx + i];
-        default: pay = pkt2[base_idx + i];
-      endcase
-      send_byte(pay); push_exp(pay); sum = sum + pay;
+  function [7:0] crc8_next;
+    input [7:0] c, d;
+    integer i; reg [7:0] x;
+    begin
+      x = c ^ d;
+      for (i=0;i<8;i=i+1)
+        x = x[7] ? ((x<<1)^8'h07) : (x<<1);
+      crc8_next = x;
     end
+  endfunction
 
-    send_byte(sum); push_exp(sum);
-    $display("[%0t] PKT end cmd=%02h", $time, cmd);
-  end
+  task uart_tx_byte;
+    input [7:0] b;
+    integer i;
+    begin
+      rx_line <= 1'b0;
+      repeat (BIT_CLKS) @(posedge CLK);
+      for (i=0;i<8;i=i+1) begin
+        rx_line <= b[i];
+        repeat (BIT_CLKS) @(posedge CLK);
+      end
+      rx_line <= 1'b1;
+      repeat (BIT_CLKS) @(posedge CLK);
+    end
   endtask
+
+  reg [7:0] args_mem [0:255];
+  reg [7:0] exp_frame [0:63][0:255];
+  reg [8:0] exp_len_q [0:63];
+  integer   exp_q_wr, exp_q_rd;
+
+  task exp_push_byte;
+    input integer frame_id;
+    input integer pos;
+    input [7:0] b;
+    begin
+      exp_frame[frame_id][pos] = b;
+    end
+  endtask
+
+  task send_packet;
+    input [7:0] opcode;
+    input integer arg_len;
+    integer i, f, p;
+    reg [7:0] len_b;
+    reg [7:0] crc;
+    begin
+      f = exp_q_wr;
+      p = 0;
+
+      len_b = (1 + arg_len + 1);
+      crc   = 8'h00;
+      exp_push_byte(f, p, 8'hAA);                      p = p + 1;
+      exp_push_byte(f, p, len_b);  crc = crc8_next(8'h00, len_b); p = p + 1;
+      exp_push_byte(f, p, opcode); crc = crc8_next(crc, opcode);  p = p + 1;
+      for (i=0;i<arg_len;i=i+1) begin
+        exp_push_byte(f, p, args_mem[i]);
+        crc = crc8_next(crc, args_mem[i]);
+        p   = p + 1;
+      end
+      exp_push_byte(f, p, crc);
+      exp_len_q[f] = p + 1;
+      exp_q_wr     = exp_q_wr + 1;
+
+      $display("TB: frame=%0d len=%0d opcode=%02x CRC=%02x",
+               f, exp_len_q[f], opcode, crc);
+
+      for (i=0; i<exp_len_q[f]; i=i+1)
+        uart_tx_byte(exp_frame[f][i]);
+    end
+  endtask
+
+  integer pkts_seen;
+  always @(posedge CLK) begin
+    if (pkt_valid) begin
+      pkts_seen <= pkts_seen + 1;
+      if (err_len || err_crc) $fatal;
+    end
+  end
+
+  integer i_print, mismatch_idx, k;
+  reg [8:0] exp_len_cur;
+  reg stop_cmp;
 
   always @(posedge CLK) begin
-    if (rx_valid) begin
-      if (rx_data !== exp[rd_ptr]) begin
-        $display("[%0t] RX[%0d]=%02h EXPECT=%02h  **FAIL**", $time, rd_ptr, rx_data, exp[rd_ptr]);
-        $fatal;
-      end
-      rd_ptr <= rd_ptr + 1;
-    end
-  end
+    if (pkt_valid) begin
+      exp_len_cur = exp_len_q[exp_q_rd];
 
-  initial begin : init_payloads
-    integer i;
-    for (i = 0; i < 64; i = i + 1) pkt0[i] = 8'h10 + i[7:0];
-    for (i = 0; i < 64; i = i + 1) pkt1[i] = (i * 7) & 8'hFF;
-    for (i = 0; i < 64; i = i + 1) pkt2[i] = 8'hC0 ^ i[7:0];
-  end
+      $display("[%0t] PKT FPGA len=%0d  EXP len=%0d (frame=%0d)",
+               $time, pkt_len, exp_len_cur, exp_q_rd);
 
-  initial begin
-    $dumpfile("uart_tb.vcd");
-    $dumpvars(0, uart_tb);
-  end
+      $write("FPGA: ");
+      for (i_print=0;i_print<pkt_len;i_print=i_print+1) $write("%02x ", pkt_bus[8*i_print +: 8]);
+      $write("\n");
 
-  initial begin : run
-    tx_data  = 8'h00;
-    tx_valid = 1'b0;
+      $write("EXP : ");
+      for (i_print=0;i_print<exp_len_cur;i_print=i_print+1) $write("%02x ", exp_frame[exp_q_rd][i_print]);
+      $write("\n");
 
-    $display("[%0t] RESET", $time);
-    repeat (20) @(posedge CLK);
-    rst = 1'b0;
-    $display("[%0t] RUN", $time);
-    repeat (20) @(posedge CLK);
-
-    send_packet(8'h01, 16,  0, 0);
-    send_packet(8'h02, 32,  0, 1);
-    send_packet(8'h03, 48,  0, 2);
-    send_packet(8'h10,  8,  8, 0);
-    send_packet(8'h20, 16, 16, 1);
-    send_packet(8'h30, 32, 16, 2);
-
-    fork
-      begin : guard_blk
-        integer guard;
-        guard = 0;
-        while (rd_ptr < total) begin
-          @(posedge CLK);
-          guard = guard + 1;
-          if (guard > 200_000_000) begin
-            $display("[%0t] TIMEOUT waiting bytes (got %0d / %0d)", $time, rd_ptr, total);
-            $fatal;
+      mismatch_idx = -1;
+      stop_cmp = 0;
+      if (pkt_len !== exp_len_cur) mismatch_idx = 0;
+      else begin
+        for (k=0; k<pkt_len; k=k+1) begin
+          if (!stop_cmp && (pkt_bus[8*k +: 8] !== exp_frame[exp_q_rd][k])) begin
+            mismatch_idx = k;
+            stop_cmp = 1;
           end
         end
-        $display("[%0t] PASS: received all %0d bytes", $time, total);
-        $finish;
       end
-      begin : hard_timeout
-        repeat (300_000_000) @(posedge CLK);
-        $display("[%0t] HARD TIMEOUT", $time);
-        $fatal;
-      end
-    join
-  end
 
-  initial begin
-    if (FCLK_HZ % (BAUD*OS) != 0) begin
-      $error("baud_gen params not integral: FCLK_HZ %% (BAUD*OS) != 0  (%0d %% %0d)",
-             FCLK_HZ, BAUD*OS);
-      $fatal;
+      if (mismatch_idx >= 0) begin
+        $display("MISMATCH at byte %0d: FPGA=%02x EXP=%02x",
+                 mismatch_idx,
+                 pkt_bus[8*mismatch_idx +: 8],
+                 exp_frame[exp_q_rd][mismatch_idx]);
+        $fatal;
+      end else begin
+        $display("MATCH");
+      end
+
+      exp_q_rd = exp_q_rd + 1;
     end
   end
 
+  integer i;
+  integer j;
+  initial begin
+    rx_line   = 1'b1;
+    pkts_seen = 0;
+    exp_q_wr  = 0;
+    exp_q_rd  = 0;
+
+    for (i=0;i<64;i=i+1) begin
+      exp_len_q[i] = 0;
+      for (j=0;j<256;j=j+1) exp_frame[i][j] = 8'h00;
+    end
+
+    repeat (20) @(posedge CLK);
+    rst = 1'b0;
+    repeat (20) @(posedge CLK);
+
+    args_mem[0] = 8'h0F;
+    send_packet(8'h01, 1);
+
+    args_mem[0]=8'h0A; args_mem[1]=8'h00;
+    args_mem[2]=8'h14; args_mem[3]=8'h00;
+    args_mem[4]=8'h1E; args_mem[5]=8'h00;
+    args_mem[6]=8'h28; args_mem[7]=8'h00;
+    args_mem[8]=8'h05;
+    send_packet(8'h03, 9);
+
+    args_mem[0] = 8'hFF;
+    send_packet(8'h20, 1);
+
+    repeat (2_000_000) @(posedge CLK);
+    if (pkts_seen < 3) $fatal;
+    $finish;
+  end
 endmodule

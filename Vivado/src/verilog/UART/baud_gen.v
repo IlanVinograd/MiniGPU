@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 module baud_gen #(
     parameter integer FCLK_HZ = 100_000_000,
     parameter integer BAUD    = 3_125_000,
