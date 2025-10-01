@@ -6,13 +6,13 @@ module packet_assembler #(
 )(
     input              CLK,
     input              rst,
-    input      [7:0]   data_out,
-    input              valid_out,
+    input      [7:0]   rx_data,
+    input              rx_valid,
     input              fifo_ready,
     input              fifo_full,
     output reg [8*SIZE-1:0] packet,
     output reg         valid_packet,
-    output reg  [8:0]  packet_len,
+    // output reg  [8:0]  packet_len,
     output reg         err_len,
     output reg         err_crc
 );
@@ -51,9 +51,10 @@ module packet_assembler #(
             crc <= 8'd0;
             rx_crc <= 8'd0;
             valid_packet <= 1'b0;
-            packet_len <= 9'd0;
+            // packet_len <= 9'd0;
             err_len <= 1'b0;
             err_crc <= 1'b0;
+            packet <= {8*SIZE{1'b0}};
         end else begin
             valid_packet <= 1'b0;
             err_len <= 1'b0;
@@ -61,7 +62,7 @@ module packet_assembler #(
 
             case (state)
                 S_WAIT: begin
-                    if (valid_out && data_out == SYNC) begin
+                    if (rx_valid && rx_data == SYNC) begin
                         buffer[0] <= SYNC;
                         idx <= 9'd1;
                         crc <= 8'd0;
@@ -70,11 +71,11 @@ module packet_assembler #(
                 end
 
                 S_LEN: begin
-                    if (valid_out) begin
-                        len_reg   <= data_out;
-                        buffer[1] <= data_out;
-                        crc       <= crc8_next(8'd0, data_out);
-                        if (data_out < 8'd2 || (2 + data_out) > SIZE) begin
+                    if (rx_valid) begin
+                        len_reg   <= rx_data;
+                        buffer[1] <= rx_data;
+                        crc       <= crc8_next(8'd0, rx_data);
+                        if (rx_data < 8'd2 || (2 + rx_data) > SIZE) begin
                             err_len <= 1'b1;
                             state   <= S_WAIT;
                             idx     <= 9'd0;
@@ -86,10 +87,10 @@ module packet_assembler #(
                 end
 
                 S_BODY: begin
-                    if (valid_out) begin
-                        buffer[idx] <= data_out;
-                        if (idx < (2 + len_reg - 1)) crc <= crc8_next(crc, data_out);
-                        else rx_crc <= data_out;
+                    if (rx_valid) begin
+                        buffer[idx] <= rx_data;
+                        if (idx < (2 + len_reg - 1)) crc <= crc8_next(crc, rx_data);
+                        else rx_crc <= rx_data;
                         idx <= idx + 1'b1;
                         if (idx == (2 + len_reg - 1)) state <= S_DONE;
                     end
@@ -97,16 +98,24 @@ module packet_assembler #(
 
                 S_DONE: begin
                     if (rx_crc == crc) begin
-                        packet_len <= 2 + len_reg;
                         for (k = 0; k < SIZE; k = k + 1)
                             packet[8*k +: 8] <= (k < (2 + len_reg)) ? buffer[k] : 8'h00;
-                        valid_packet <= 1'b1;
+
+                        if (fifo_ready && !fifo_full) begin
+                            valid_packet <= 1'b1;
+                            state        <= S_WAIT;
+                            idx          <= 9'd0;
+                        end else begin
+                            valid_packet <= 1'b0;
+                            state        <= S_DONE;
+                        end
                     end else begin
                         err_crc <= 1'b1;
+                        state   <= S_WAIT;
+                        idx     <= 9'd0;
                     end
-                    state <= S_WAIT;
-                    idx   <= 9'd0;
                 end
+
 
                 default: state <= S_WAIT;
             endcase
