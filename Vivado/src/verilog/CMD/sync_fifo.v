@@ -18,18 +18,22 @@ module sync_fifo #(
 
     reg [AW-1:0] wptr;
     reg [AW-1:0] rptr;
+    reg          valid;
 
     reg [8*WIDTH-1:0] fifo [0:DEPTH-1];
 
-    assign empty = (rptr == wptr);
-    assign full  = ((wptr + 1'b1) == rptr);
+    wire [AW-1:0] wptr_next = wptr + 1'b1;
+    wire [AW-1:0] rptr_next = rptr + 1'b1;
+
+    assign empty = ~valid;
+    assign full  = (wptr_next == rptr) && valid;
 
     always @(posedge CLK) begin
         if (rst) begin
-            wptr <= {AW{1'b0}};
+            wptr   <= {AW{1'b0}};
         end else if (wr_en && !full) begin
             fifo[wptr] <= data_in;
-            wptr <= wptr + 1'b1;
+            wptr <= wptr_next;
         end
     end
 
@@ -37,9 +41,25 @@ module sync_fifo #(
         if (rst) begin
             rptr     <= {AW{1'b0}};
             data_out <= {8*WIDTH{1'b0}};
-        end else if (rd_en && !empty) begin
-            data_out <= fifo[rptr];
-            rptr <= rptr + 1'b1;
+            valid    <= 1'b0;
+        end else begin
+            if (wr_en && !full && !valid && (wptr == rptr)) begin
+                data_out <= data_in;
+                rptr     <= rptr_next;
+                valid    <= 1'b1;
+            end else if (rd_en && valid) begin
+                if (wptr != rptr) begin
+                    data_out <= fifo[rptr];
+                    rptr     <= rptr_next;
+                    valid    <= 1'b1;
+                end else begin
+                    valid    <= 1'b0;
+                end
+            end else if (!valid && (wptr != rptr)) begin
+                data_out <= fifo[rptr];
+                rptr     <= rptr_next;
+                valid    <= 1'b1;
+            end
         end
     end
 
