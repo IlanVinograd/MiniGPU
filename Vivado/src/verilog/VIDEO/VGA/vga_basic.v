@@ -27,7 +27,7 @@ module vga_basic #(
 
     vga_controller v(.CLK(clk25), .HS(HS), .VS(VS), .x(x), .y(y), .blank(blank));
 
-    scanout_rgb332_scaled scan(
+    scanout_rgb scan(
         .clk25(clk25), .x(x), .y(y), .blank(blank),
         .vram_q(vram_q), .vram_addr(vram_addr), .BASE_ADDR(BASE_ADDR),
         .RED(RED), .GREEN(GREEN), .BLUE(BLUE)

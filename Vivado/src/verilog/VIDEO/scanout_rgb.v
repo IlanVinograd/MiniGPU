@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module scanout_rgb332_scaled #(
+module scanout_rgb #( // 332 scaled
     parameter H_SRC  = 256,
     parameter V_SRC  = 192,
     parameter ADDR_W = 17
