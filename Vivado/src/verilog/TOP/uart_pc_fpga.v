@@ -6,8 +6,13 @@ module uart_pc_fpga #(
     parameter [7:0]   SYNC      = 8'hAA,
     parameter integer ADDR_W    = 17,
     parameter [ADDR_W-1:0] BASE_ADDR = 17'd49152,
-    parameter integer SWAP_IDX  = 0,
-    parameter integer CLEAN_IDX = 1
+    parameter integer  SWAP_IDX  = 0,
+    parameter integer  CLEAN_IDX = 1,
+    localparam integer LOAD_VERTEX_BEG_IDX   = 2,
+    localparam integer LOAD_VERTEX_CONT_IDX  = 3,
+    localparam integer LOAD_EDGE_BEG_IDX     = 4,
+    localparam integer LOAD_EDGE_CONT_IDX    = 5,
+    localparam integer STATUS_IDX            = 7
 )(
     input  CLK,
     input  RX,
@@ -16,23 +21,27 @@ module uart_pc_fpga #(
     output VS,
     output [3:0] RED,
     output [3:0] GREEN,
-    output [3:0] BLUE
+    output [3:0] BLUE,
+    output TX
 );
 
     wire [7:0] rx_data;
     wire       rx_valid;
-    wire       tx_ready_dummy;
+
+    wire       tx_ready;
+    wire       tx_valid;
+    wire [7:0] tx_data;
 
     uart_core uc (
         .CLK     (CLK),
         .rst     (rst),
         .RX      (RX),
-        .TX      (),
+        .TX      (TX),
         .rx_data (rx_data),
         .rx_valid(rx_valid),
-        .tx_data (8'b0),
-        .tx_valid(1'b0),
-        .tx_ready(tx_ready_dummy)
+        .tx_data (tx_data),
+        .tx_valid(tx_valid),
+        .tx_ready(tx_ready)
     );
 
     wire [8*SIZE-1:0] packet;
@@ -91,11 +100,11 @@ module uart_pc_fpga #(
         .vram_q    (vram_q)
     );
 
-    assign HS   = hs_int;
-    assign VS   = vs_int;
-    assign RED  = red_i;
-    assign GREEN= green_i;
-    assign BLUE = blue_i;
+    assign HS    = hs_int;
+    assign VS    = vs_int;
+    assign RED   = red_i;
+    assign GREEN = green_i;
+    assign BLUE  = blue_i;
 
     reg  swap_req_pulse;
 
@@ -116,10 +125,29 @@ module uart_pc_fpga #(
     localparam integer OPCODE_BYTE = 2;
     localparam integer ARG0_BYTE   = 3;
 
+    reg vs_d;
+    always @(posedge CLK) vs_d <= vs_int;
+    wire vs_fall = vs_d & ~vs_int;
+
+    wire is_swap_head   = (fifo_data[8*OPCODE_BYTE +: 8] == 8'h01);
+    wire is_status_head = (fifo_data[8*OPCODE_BYTE +: 8] == 8'h07);
+
+    reg swap_lock;
+    always @(posedge CLK) begin
+        if (rst) begin
+            swap_lock <= 1'b0;
+        end else begin
+            if (packet_ready_pulse && (opcode == 8'h01)) swap_lock <= 1'b1;
+            if (vs_fall && swap_lock)                    swap_lock <= 1'b0;
+        end
+    end
+
+    wire fifo_empty_gated = fifo_empty | (swap_lock & ~is_status_head);
+
     packet_reader #(.SIZE(SIZE), .OPCODE_BYTE(OPCODE_BYTE)) pr (
         .CLK          (CLK),
         .rst          (rst),
-        .fifo_empty   (fifo_empty),
+        .fifo_empty   (fifo_empty_gated),
         .fifo_data    (fifo_data),
         .rd_en        (rd_en),
         .opcode       (opcode),
@@ -130,7 +158,7 @@ module uart_pc_fpga #(
     always @(posedge CLK) begin
         if (rst) begin
             arg0_color <= 8'h00;
-        end else if (rd_en) begin
+        end else if (rd_en && (fifo_data[8*OPCODE_BYTE +: 8] == 8'h02)) begin
             arg0_color <= fifo_data[8*ARG0_BYTE +: 8];
         end
     end
@@ -144,11 +172,26 @@ module uart_pc_fpga #(
         .CMD          (CMD)
     );
 
+    wire busy_status;
+    wire status_req_pulse;
+    assign status_req_pulse = CMD[STATUS_IDX];
+
+    cmd_status cs (
+        .CLK        (CLK),
+        .rst        (rst),
+        .status_req (status_req_pulse),
+        .BUSY_STATUS(BUSY),
+        .tx_ready   (tx_ready),
+        .BUSY       (busy_status),
+        .tx_data    (tx_data),
+        .tx_valid   (tx_valid)
+    );
+
     always @(posedge CLK) begin
         if (rst) begin
             swap_req_pulse <= 1'b0;
         end else begin
-            swap_req_pulse <= CMD[SWAP_IDX] & ~BUSY[CLEAN_IDX];
+            swap_req_pulse <= CMD[SWAP_IDX];
         end
     end
 
@@ -169,9 +212,14 @@ module uart_pc_fpga #(
         .BUSY           (clear_busy)
     );
 
-    assign BUSY[SWAP_IDX]   = clear_busy;
-    assign BUSY[CLEAN_IDX]  = clear_busy;
-    assign BUSY[7:2]        = 6'b0;
+    assign BUSY[SWAP_IDX]             = swap_lock;
+    assign BUSY[CLEAN_IDX]            = clear_busy;
+    assign BUSY[LOAD_VERTEX_BEG_IDX]  = 1'b0;
+    assign BUSY[LOAD_VERTEX_CONT_IDX] = 1'b0;
+    assign BUSY[LOAD_EDGE_BEG_IDX]    = 1'b0;
+    assign BUSY[LOAD_EDGE_CONT_IDX]   = 1'b0;
+    assign BUSY[6]                    = 1'b0;
+    assign BUSY[STATUS_IDX]           = busy_status;
 
     vram_dual_clock #(.TOTAL_BYTES(98304)) vram (
         .CLK_A (clk25),

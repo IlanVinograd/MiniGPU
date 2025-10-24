@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="cmd_test_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="cmd_test_tb" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000000000 ms"></ZoomStartTime>
+      <ZoomEndTime time="112.600000001 ms"></ZoomEndTime>
+      <Cursor1Time time="32.323685446 ms"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="154"></NameColumnWidth>
+      <ValueColumnWidth column_width="138"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="16" />
+   <wvobject fp_name="/cmd_test_tb/CLK" type="logic">
+      <obj_property name="ElementShortName">CLK</obj_property>
+      <obj_property name="ObjectShortName">CLK</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/RX" type="logic">
+      <obj_property name="ElementShortName">RX</obj_property>
+      <obj_property name="ObjectShortName">RX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/TX" type="logic">
+      <obj_property name="ElementShortName">TX</obj_property>
+      <obj_property name="ObjectShortName">TX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/uc/u_rx/data_out" type="array">
+      <obj_property name="ElementShortName">data_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_out[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/uc/u_tx/data_in" type="array">
+      <obj_property name="ElementShortName">data_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_in[7:0]</obj_property>
+      <obj_property name="CustomSignalColor">#0000FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/cd/opcode" type="array">
+      <obj_property name="ElementShortName">opcode[7:0]</obj_property>
+      <obj_property name="ObjectShortName">opcode[7:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/cd/BUSY" type="array">
+      <obj_property name="ElementShortName">BUSY[7:0]</obj_property>
+      <obj_property name="ObjectShortName">BUSY[7:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#FF0000</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/vram/DATA_B" type="array">
+      <obj_property name="ElementShortName">DATA_B[7:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_B[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/sb/side" type="logic">
+      <obj_property name="ElementShortName">side</obj_property>
+      <obj_property name="ObjectShortName">side</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/clr/color" type="array">
+      <obj_property name="ElementShortName">color[7:0]</obj_property>
+      <obj_property name="ObjectShortName">color[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/rst" type="logic">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/HS" type="logic">
+      <obj_property name="ElementShortName">HS</obj_property>
+      <obj_property name="ObjectShortName">HS</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/VS" type="logic">
+      <obj_property name="ElementShortName">VS</obj_property>
+      <obj_property name="ObjectShortName">VS</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/RED" type="array">
+      <obj_property name="ElementShortName">RED[3:0]</obj_property>
+      <obj_property name="ObjectShortName">RED[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/GREEN" type="array">
+      <obj_property name="ElementShortName">GREEN[3:0]</obj_property>
+      <obj_property name="ObjectShortName">GREEN[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/BLUE" type="array">
+      <obj_property name="ElementShortName">BLUE[3:0]</obj_property>
+      <obj_property name="ObjectShortName">BLUE[3:0]</obj_property>
+   </wvobject>
+</wave_config>

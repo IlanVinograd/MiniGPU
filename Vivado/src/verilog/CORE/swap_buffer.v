@@ -17,29 +17,26 @@ module swap_buffer #(
         vs_prev <= vs_sync;
     end
 
-    wire vs_norm = VS_ACTIVE_LOW ? ~vs_sync : vs_sync;
-
     wire rise = (~vs_prev) &  vs_sync;
     wire fall = ( vs_prev) & ~vs_sync;
-
-    wire vs_event = VS_ACTIVE_LOW ? rise : fall;
+    wire vs_event = VS_ACTIVE_LOW ? fall : rise;
 
     reg pending;
+
+    wire will_swap = pending | swap_req;
 
     always @(posedge CLK) begin
         if (rst) begin
             side    <= 1'b0;
             pending <= 1'b0;
+        end else if (BYPASS_VSYNC) begin
+            if (swap_req) side <= ~side;
         end else begin
-            if (swap_req) pending <= 1'b1;
-
-            if (BYPASS_VSYNC) begin
-                if (swap_req) side <= ~side;
-            end else begin
-                if (pending && vs_event) begin
-                    side    <= ~side;
-                    pending <= 1'b0;
-                end
+            if (vs_event && will_swap) begin
+                side    <= ~side;
+                pending <= 1'b0;
+            end else if (swap_req) begin
+                pending <= 1'b1;
             end
         end
     end
