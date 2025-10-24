@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
-module vram_dual_clock #(
-    parameter integer TOTAL_BYTES  = 230400,
+module vram_dual_clock #( // Frame Buffer
+    parameter integer TOTAL_BYTES  = 98304,
     parameter integer SECOND_BASE  = 49152
 )(
     input  CLK_A,
