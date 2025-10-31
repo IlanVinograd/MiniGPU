@@ -1,5 +1,4 @@
 `timescale 1ns / 1ps
-
 module cmd_decoder (
     input  wire        CLK,
     input  wire        rst,
@@ -8,7 +7,6 @@ module cmd_decoder (
     input  wire [7:0]  BUSY,
     output reg  [7:0]  CMD
 );
-
     localparam integer SWAP_IDX             = 0;
     localparam integer CLEAN_IDX            = 1;
     localparam integer LOAD_VERTEX_BEG_IDX  = 2;
