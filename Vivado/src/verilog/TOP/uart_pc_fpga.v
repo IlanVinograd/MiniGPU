@@ -5,13 +5,14 @@ module uart_pc_fpga #(
     parameter [7:0]   SYNC      = 8'hAA,
     parameter integer ADDR_W    = 17,
     parameter [ADDR_W-1:0] BASE_ADDR = 17'd49152,
-    parameter integer SWAP_IDX  = 0,
+    parameter integer SWAP_IDX = 0,
     parameter integer CLEAN_IDX = 1,
-    localparam integer LOAD_VERTEX_BEG_IDX   = 2,
-    localparam integer LOAD_VERTEX_CONT_IDX  = 3,
-    localparam integer LOAD_EDGE_BEG_IDX     = 4,
-    localparam integer LOAD_EDGE_CONT_IDX    = 5,
-    localparam integer STATUS_IDX            = 7
+    localparam integer LOAD_VERTEX_IDX = 2,
+    localparam integer UNKNOWN_1  = 3,
+    localparam integer LOAD_EDGE_IDX = 4,
+    localparam integer UNKNOWN_2 = 5,
+    localparam integer UNKNOWN_3 = 6,
+    localparam integer STATUS_IDX = 7
 )(
     input  wire CLK,
     input  wire RX,
@@ -239,10 +240,10 @@ module uart_pc_fpga #(
 
     assign BUSY[SWAP_IDX]             = swap_lock;
     assign BUSY[CLEAN_IDX]            = clear_busy;
-    assign BUSY[LOAD_VERTEX_BEG_IDX]  = 1'b0;
-    assign BUSY[LOAD_VERTEX_CONT_IDX] = 1'b0;
-    assign BUSY[LOAD_EDGE_BEG_IDX]    = ledge_busy;
-    assign BUSY[LOAD_EDGE_CONT_IDX]   = 1'b0;
-    assign BUSY[6] = 0;
+    assign BUSY[LOAD_VERTEX_IDX]  = 1'b0;
+    assign BUSY[UNKNOWN_1] = 1'b0;
+    assign BUSY[LOAD_EDGE_IDX]    = ledge_busy;
+    assign BUSY[UNKNOWN_2]   = 1'b0;
+    assign BUSY[UNKNOWN_3] = 0;
     assign BUSY[STATUS_IDX]           = 1'b0;
 endmodule

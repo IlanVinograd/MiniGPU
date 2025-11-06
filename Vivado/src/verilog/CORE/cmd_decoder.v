@@ -9,18 +9,19 @@ module cmd_decoder (
 );
     localparam integer SWAP_IDX             = 0;
     localparam integer CLEAN_IDX            = 1;
-    localparam integer LOAD_VERTEX_BEG_IDX  = 2;
-    localparam integer LOAD_VERTEX_CONT_IDX = 3;
-    localparam integer LOAD_EDGE_BEG_IDX    = 4;
-    localparam integer LOAD_EDGE_CONT_IDX   = 5;
-    localparam integer STATUS_IDX           = 7;
+    localparam integer LOAD_VERTEX_IDX  = 2;
+    localparam integer UNKNOWN_1 = 3;
+    localparam integer LOAD_EDGE_IDX = 4;
+    localparam integer UNKNOWN_2 = 5;
+    localparam integer UNKNOWN_3 = 6;
+    localparam integer STATUS_IDX = 7;
 
     localparam [7:0] CMD_SWAP               = 8'h01;
     localparam [7:0] CMD_CLEAN              = 8'h02;
     localparam [7:0] CMD_LOAD_VERTEX_BEGIN  = 8'h03;
-    localparam [7:0] CMD_LOAD_VERTEX_CONT   = 8'h04;
+   /*localparam [7:0] _UNKNOWN_1            = 8'h04;*/
     localparam [7:0] CMD_LOAD_EDGE_BEGIN    = 8'h05;
-    localparam [7:0] CMD_LOAD_EDGE_CONT     = 8'h06;
+   /*localparam [7:0] _UNKNOWN_2            = 8'h06;*/
     localparam [7:0] CMD_STATUS             = 8'h07;
 
     always @(posedge CLK) begin
@@ -30,13 +31,11 @@ module cmd_decoder (
             CMD <= 8'b0;
             if (packet_ready) begin
                 case (opcode)
-                    CMD_SWAP:                           CMD[SWAP_IDX]             <= 1'b1;
-                    CMD_CLEAN:              if (!BUSY[CLEAN_IDX])             CMD[CLEAN_IDX]            <= 1'b1;
-                    CMD_LOAD_VERTEX_BEGIN:  if (!BUSY[LOAD_VERTEX_BEG_IDX])   CMD[LOAD_VERTEX_BEG_IDX]  <= 1'b1;
-                    CMD_LOAD_VERTEX_CONT:   if ( BUSY[LOAD_VERTEX_BEG_IDX])   CMD[LOAD_VERTEX_CONT_IDX] <= 1'b1;
-                    CMD_LOAD_EDGE_BEGIN:    if (!BUSY[LOAD_EDGE_BEG_IDX])     CMD[LOAD_EDGE_BEG_IDX]    <= 1'b1;
-                    CMD_LOAD_EDGE_CONT:     if ( BUSY[LOAD_EDGE_BEG_IDX])     CMD[LOAD_EDGE_CONT_IDX]   <= 1'b1;
-                    CMD_STATUS:             if (!BUSY[STATUS_IDX])            CMD[STATUS_IDX]           <= 1'b1;
+                    CMD_SWAP:                                            CMD[SWAP_IDX]         <= 1'b1;
+                    CMD_CLEAN:              if (!BUSY[CLEAN_IDX])        CMD[CLEAN_IDX]        <= 1'b1;
+                    CMD_LOAD_VERTEX_BEGIN:  if (!BUSY[LOAD_VERTEX_IDX])  CMD[LOAD_VERTEX_IDX]  <= 1'b1;
+                    CMD_LOAD_EDGE_BEGIN:    if (!BUSY[LOAD_EDGE_IDX])    CMD[LOAD_EDGE_IDX]    <= 1'b1;
+                    CMD_STATUS:             if (!BUSY[STATUS_IDX])       CMD[STATUS_IDX]       <= 1'b1;
                     default: ;
                 endcase
             end

@@ -138,45 +138,54 @@ module cmd_test_tb;
 
     task automatic load_edge;
         begin
-            log_hdr("LOAD_EDGE (head, cmd=0x05, cont=0x00)");
+            log_hdr("LOAD_EDGE (head, cmd=0x05, START=0x0000, COUNT=3)");
             send_byte(8'hAA);
-            send_byte(8'h16);
+            send_byte(8'h17);
             send_byte(8'h05);
             send_byte(8'h03);
+            send_byte(8'h00);
             send_byte(8'h00);
             send_byte(8'h00); send_byte(8'h11);
             send_byte(8'h00); send_byte(8'h22);
             send_byte(8'h00); send_byte(8'h33);
+
             send_byte(8'h00); send_byte(8'h44);
             send_byte(8'h00); send_byte(8'h55);
             send_byte(8'h00); send_byte(8'h66);
-            send_byte(8'h00); send_byte(8'h55);
-            send_byte(8'h00); send_byte(8'h66);
+
             send_byte(8'h00); send_byte(8'h77);
-            send_byte(8'h6B);
+            send_byte(8'h00); send_byte(8'h88);
+            send_byte(8'h00); send_byte(8'h99);
+
+            send_byte(8'h05);
         end
     endtask
 
     task automatic load_edge_cont;
         begin
-            log_hdr("LOAD_EDGE_CONT (cmd=0x05, cont=0x04)");
+            log_hdr("LOAD_EDGE_CONT (cmd=0x05, START=0x0004, COUNT=3)");
             send_byte(8'hAA);
-            send_byte(8'h16);
+            send_byte(8'h17);
             send_byte(8'h05);
             send_byte(8'h03);
+            send_byte(8'h00);
             send_byte(8'h04);
             send_byte(8'h00); send_byte(8'h88);
             send_byte(8'h00); send_byte(8'h77);
             send_byte(8'h00); send_byte(8'h66);
+
             send_byte(8'h00); send_byte(8'h55);
             send_byte(8'h00); send_byte(8'h44);
             send_byte(8'h00); send_byte(8'h33);
+
             send_byte(8'h00); send_byte(8'h22);
             send_byte(8'h00); send_byte(8'h11);
             send_byte(8'h00); send_byte(8'hFF);
-            send_byte(8'h2D);
+
+            send_byte(8'h85);
         end
     endtask
+
 
     initial begin
         rst = 1'b1;
@@ -202,6 +211,8 @@ module cmd_test_tb;
         load_edge_cont();
         swap();
         status();
+        
+        swap();
 
         #(100*BIT_TIME);
         $display("---- CMD TB finished @ %t ----", $time);

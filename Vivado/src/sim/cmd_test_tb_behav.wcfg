@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="2.786681667 ms"></ZoomStartTime>
-      <ZoomEndTime time="34.786681668 ms"></ZoomEndTime>
-      <Cursor1Time time="10.166681667 ms"></Cursor1Time>
+      <ZoomStartTime time="3,920,067.374 ns"></ZoomStartTime>
+      <ZoomEndTime time="3,920,098.435 ns"></ZoomEndTime>
+      <Cursor1Time time="3,920,075.194 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="190"></NameColumnWidth>
+      <NameColumnWidth column_width="184"></NameColumnWidth>
       <ValueColumnWidth column_width="90"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="25" />
+   <WVObjectSize size="26" />
    <wvobject fp_name="/cmd_test_tb/CLK" type="logic">
       <obj_property name="ElementShortName">CLK</obj_property>
       <obj_property name="ObjectShortName">CLK</obj_property>
@@ -84,6 +84,10 @@
       <obj_property name="ObjectShortName">edge_wdata[47:0]</obj_property>
       <obj_property name="CustomSignalColor">#FF0080</obj_property>
       <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/u_pkt_fifo/full" type="logic">
+      <obj_property name="ElementShortName">full</obj_property>
+      <obj_property name="ObjectShortName">full</obj_property>
    </wvobject>
    <wvobject fp_name="/cmd_test_tb/HS" type="logic">
       <obj_property name="ElementShortName">HS</obj_property>
