@@ -5,14 +5,8 @@ module uart_pc_fpga #(
     parameter [7:0]   SYNC      = 8'hAA,
     parameter integer ADDR_W    = 17,
     parameter [ADDR_W-1:0] BASE_ADDR = 17'd49152,
-    parameter integer SWAP_IDX = 0,
-    parameter integer CLEAN_IDX = 1,
-    localparam integer LOAD_VERTEX_IDX = 2,
-    localparam integer UNKNOWN_1  = 3,
-    localparam integer LOAD_EDGE_IDX = 4,
-    localparam integer UNKNOWN_2 = 5,
-    localparam integer UNKNOWN_3 = 6,
-    localparam integer STATUS_IDX = 7
+    parameter integer SWAP_IDX  = 0,
+    parameter integer CLEAN_IDX = 1
 )(
     input  wire CLK,
     input  wire RX,
@@ -24,6 +18,13 @@ module uart_pc_fpga #(
     output wire [3:0] BLUE,
     output wire TX
 );
+    localparam integer LOAD_VERTEX_IDX = 2;
+    localparam integer UNKNOWN_1  = 3;
+    localparam integer LOAD_EDGE_IDX = 4;
+    localparam integer UNKNOWN_2 = 5;
+    localparam integer UNKNOWN_3 = 6;
+    localparam integer STATUS_IDX = 7;
+
     localparam integer LEN_BYTE    = 1;
     localparam integer OPCODE_BYTE = 2;
     localparam integer ARG0_BYTE   = 3;
@@ -95,6 +96,9 @@ module uart_pc_fpga #(
         .vram_q    (vram_q)
     );
 
+    wire [7:0] BUSY;
+    wire [7:0] CMD;
+
     swap_buffer u_swap_buffer (
         .CLK      (CLK),
         .rst      (rst),
@@ -121,10 +125,25 @@ module uart_pc_fpga #(
         end
     end
 
-    wire hold_05   = (!fifo_empty) && (head_opcode == 8'h05) && ledge_busy;
+    wire                     edge_busy;
+    wire [$clog2(1024)-1:0]  edge_waddr_w;
+    wire [47:0]              edge_wdata_w;
+    wire                     edge_we_w;
+
+    wire                     vertex_busy;
+    wire [$clog2(1024)-1:0]  vertex_waddr_w;
+    wire [63:0]              vertex_wdata_w;
+    wire                     vertex_we_w;
+
+    wire hold_clear = (!fifo_empty) && (head_opcode == 8'h02) && swap_lock;
+
+    wire hold_05   = (!fifo_empty) && (head_opcode == 8'h05) && edge_busy;
+    wire hold_03   = (!fifo_empty) && (head_opcode == 8'h03) && vertex_busy;
     wire hold_swap = (!fifo_empty) && (head_opcode == 8'h01) && swap_lock;
-    wire hold = hold_05 | hold_swap;
+
+    wire hold = hold_05 | hold_03 | hold_swap | hold_clear;
     wire fifo_empty_eff = fifo_empty | hold;
+
 
     packet_reader #(.SIZE(SIZE), .OPCODE_BYTE(OPCODE_BYTE)) u_packet_reader (
         .CLK          (CLK),
@@ -135,9 +154,6 @@ module uart_pc_fpga #(
         .opcode       (opcode),
         .packet_ready (packet_ready)
     );
-
-    wire [7:0] BUSY;
-    wire [7:0] CMD;
 
     cmd_decoder u_cmd_decoder (
         .CLK          (CLK),
@@ -183,11 +199,6 @@ module uart_pc_fpga #(
         .BUSY           (clear_busy)
     );
 
-    wire                     ledge_busy;
-    wire [$clog2(1024)-1:0]  edge_waddr_w;
-    wire [47:0]              edge_wdata_w;
-    wire                     edge_we_w;
-
     cmd_load_edge #(
         .DEPTH       (1024),
         .DW          (48),
@@ -201,7 +212,7 @@ module uart_pc_fpga #(
         .edge_waddr     (edge_waddr_w),
         .edge_wdata     (edge_wdata_w),
         .edge_we        (edge_we_w),
-        .BUSY           (ledge_busy),
+        .BUSY           (edge_busy),
         .err_len        (),
         .err_range      (),
         .err_proto      ()
@@ -224,6 +235,42 @@ module uart_pc_fpga #(
         .Q_B    ()
     );
 
+    cmd_load_vertex #(
+        .DEPTH       (1024),
+        .DW          (64),
+        .PACKET_SIZE (SIZE)
+    ) u_cmd_load_vertex (
+        .CLK            (CLK),
+        .rst            (rst),
+        .begin_req_pulse(packet_ready && (opcode == 8'h03)),
+        .begin_len      (fifo_data[8*LEN_BYTE +: 8]),
+        .begin_packet   (fifo_data),
+        .vertex_waddr   (vertex_waddr_w),
+        .vertex_wdata   (vertex_wdata_w),
+        .vertex_we      (vertex_we_w),
+        .BUSY           (vertex_busy),
+        .err_len        (),
+        .err_range      (),
+        .err_proto      ()
+    );
+
+    vertex_buffer #(
+        .DEPTH (1024),
+        .DW    (64)
+    ) u_vertex_buffer (
+        .CLK_A  (CLK),
+        .DATA_A (vertex_wdata_w),
+        .ADDR_A (vertex_waddr_w),
+        .WE_A   (vertex_we_w),
+        .Q_A    (),
+
+        .CLK_B  (CLK),
+        .DATA_B ({64{1'b0}}),
+        .ADDR_B ({$clog2(1024){1'b0}}),
+        .WE_B   (1'b0),
+        .Q_B    ()
+    );
+
     vram_dual_clock #(.TOTAL_BYTES(98304)) u_vram (
         .CLK_A (clk25),
         .DATA_A(8'h00),
@@ -238,12 +285,12 @@ module uart_pc_fpga #(
         .Q_B   ()
     );
 
-    assign BUSY[SWAP_IDX]             = swap_lock;
-    assign BUSY[CLEAN_IDX]            = clear_busy;
-    assign BUSY[LOAD_VERTEX_IDX]  = 1'b0;
-    assign BUSY[UNKNOWN_1] = 1'b0;
-    assign BUSY[LOAD_EDGE_IDX]    = ledge_busy;
-    assign BUSY[UNKNOWN_2]   = 1'b0;
-    assign BUSY[UNKNOWN_3] = 0;
-    assign BUSY[STATUS_IDX]           = 1'b0;
+    assign BUSY[SWAP_IDX]         = swap_lock;
+    assign BUSY[CLEAN_IDX]        = clear_busy;
+    assign BUSY[LOAD_VERTEX_IDX]  = vertex_busy;
+    assign BUSY[UNKNOWN_1]        = 1'b0;
+    assign BUSY[LOAD_EDGE_IDX]    = edge_busy;
+    assign BUSY[UNKNOWN_2]        = 1'b0;
+    assign BUSY[UNKNOWN_3]        = 1'b0;
+    assign BUSY[STATUS_IDX]       = 1'b0;
 endmodule

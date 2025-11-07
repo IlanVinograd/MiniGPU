@@ -148,15 +148,12 @@ module cmd_test_tb;
             send_byte(8'h00); send_byte(8'h11);
             send_byte(8'h00); send_byte(8'h22);
             send_byte(8'h00); send_byte(8'h33);
-
             send_byte(8'h00); send_byte(8'h44);
             send_byte(8'h00); send_byte(8'h55);
             send_byte(8'h00); send_byte(8'h66);
-
             send_byte(8'h00); send_byte(8'h77);
             send_byte(8'h00); send_byte(8'h88);
             send_byte(8'h00); send_byte(8'h99);
-
             send_byte(8'h05);
         end
     endtask
@@ -173,19 +170,66 @@ module cmd_test_tb;
             send_byte(8'h00); send_byte(8'h88);
             send_byte(8'h00); send_byte(8'h77);
             send_byte(8'h00); send_byte(8'h66);
-
             send_byte(8'h00); send_byte(8'h55);
             send_byte(8'h00); send_byte(8'h44);
             send_byte(8'h00); send_byte(8'h33);
-
             send_byte(8'h00); send_byte(8'h22);
             send_byte(8'h00); send_byte(8'h11);
             send_byte(8'h00); send_byte(8'hFF);
-
             send_byte(8'h85);
         end
     endtask
 
+    task automatic load_vertex_begin;
+        begin
+            log_hdr("LOAD_VERTEX_BEGIN (cmd=0x03, START=0x0010, COUNT=2)");
+            send_byte(8'hAA);
+            send_byte(8'h15);
+            send_byte(8'h03);
+            send_byte(8'h02);
+            send_byte(8'h00);
+            send_byte(8'h10);
+            send_byte(8'h00); send_byte(8'h64);
+            send_byte(8'h00); send_byte(8'hC8);
+            send_byte(8'h00); send_byte(8'h00);
+            send_byte(8'hE3);
+            send_byte(8'h10);
+            send_byte(8'h00); send_byte(8'h32);
+            send_byte(8'h00); send_byte(8'h96);
+            send_byte(8'h00); send_byte(8'h00);
+            send_byte(8'h4F);
+            send_byte(8'h20);
+            send_byte(8'h22);
+        end
+    endtask
+
+    task automatic load_vertex_begin_alt;
+        begin
+            log_hdr("LOAD_VERTEX_BEGIN (cmd=0x03, START=0x0004, COUNT=3)");
+            send_byte(8'hAA);
+            send_byte(8'h1D);
+            send_byte(8'h03);
+            send_byte(8'h03);
+            send_byte(8'h00);
+            send_byte(8'h04);
+            send_byte(8'h00); send_byte(8'h10);
+            send_byte(8'h00); send_byte(8'h20);
+            send_byte(8'h00); send_byte(8'h30);
+            send_byte(8'hA5);
+            send_byte(8'h01);
+            send_byte(8'h00); send_byte(8'h40);
+            send_byte(8'h00); send_byte(8'h50);
+            send_byte(8'h00); send_byte(8'h60);
+            send_byte(8'h5A);
+            send_byte(8'h0F);
+            send_byte(8'h00); send_byte(8'h70);
+            send_byte(8'h00); send_byte(8'h80);
+            send_byte(8'h00); send_byte(8'h90);
+            send_byte(8'hF0);
+            send_byte(8'h07);
+            send_byte(8'h9F);
+        end
+    endtask
 
     initial begin
         rst = 1'b1;
@@ -198,21 +242,19 @@ module cmd_test_tb;
         swap();
         status();
 
-        clear_color();
-        swap();
-        status();
-
+        load_vertex_begin();
+        load_vertex_begin_alt();
         load_edge();
         load_edge_cont();
         swap();
         status();
 
+        load_vertex_begin();
+        load_vertex_begin_alt();
         load_edge();
         load_edge_cont();
         swap();
         status();
-        
-        swap();
 
         #(100*BIT_TIME);
         $display("---- CMD TB finished @ %t ----", $time);

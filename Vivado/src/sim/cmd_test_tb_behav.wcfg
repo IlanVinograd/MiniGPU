@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="3,920,067.374 ns"></ZoomStartTime>
-      <ZoomEndTime time="3,920,098.435 ns"></ZoomEndTime>
-      <Cursor1Time time="3,920,075.194 ns"></Cursor1Time>
+      <ZoomStartTime time="0.000000000 ms"></ZoomStartTime>
+      <ZoomEndTime time="44.404655001 ms"></ZoomEndTime>
+      <Cursor1Time time="8.978370682 ms"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="184"></NameColumnWidth>
+      <NameColumnWidth column_width="178"></NameColumnWidth>
       <ValueColumnWidth column_width="90"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="26" />
+   <WVObjectSize size="27" />
    <wvobject fp_name="/cmd_test_tb/CLK" type="logic">
       <obj_property name="ElementShortName">CLK</obj_property>
       <obj_property name="ObjectShortName">CLK</obj_property>
@@ -46,7 +46,7 @@
    <wvobject fp_name="/cmd_test_tb/DUT/u_cmd_decoder/opcode" type="array">
       <obj_property name="ElementShortName">opcode[7:0]</obj_property>
       <obj_property name="ObjectShortName">opcode[7:0]</obj_property>
-      <obj_property name="CustomSignalColor">#FFA500</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
       <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
    <wvobject fp_name="/cmd_test_tb/DUT/color" type="array">
@@ -85,6 +85,18 @@
       <obj_property name="CustomSignalColor">#FF0080</obj_property>
       <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/u_cmd_load_vertex/next_addr" type="array">
+      <obj_property name="ElementShortName">next_addr[9:0]</obj_property>
+      <obj_property name="ObjectShortName">next_addr[9:0]</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/u_cmd_load_vertex/vertex_wdata" type="array">
+      <obj_property name="ElementShortName">vertex_wdata[63:0]</obj_property>
+      <obj_property name="ObjectShortName">vertex_wdata[63:0]</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
    <wvobject fp_name="/cmd_test_tb/DUT/u_pkt_fifo/full" type="logic">
       <obj_property name="ElementShortName">full</obj_property>
       <obj_property name="ObjectShortName">full</obj_property>
@@ -106,12 +118,6 @@
    <wvobject fp_name="/cmd_test_tb/DUT/head_opcode" type="array">
       <obj_property name="ElementShortName">head_opcode[7:0]</obj_property>
       <obj_property name="ObjectShortName">head_opcode[7:0]</obj_property>
-      <obj_property name="CustomSignalColor">#FF0000</obj_property>
-      <obj_property name="UseCustomSignalColor">true</obj_property>
-   </wvobject>
-   <wvobject fp_name="/cmd_test_tb/DUT/ledge_busy" type="logic">
-      <obj_property name="ElementShortName">ledge_busy</obj_property>
-      <obj_property name="ObjectShortName">ledge_busy</obj_property>
       <obj_property name="CustomSignalColor">#FF0000</obj_property>
       <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
