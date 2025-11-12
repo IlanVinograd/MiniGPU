@@ -138,23 +138,17 @@ module cmd_test_tb;
 
     task automatic load_edge;
         begin
-            log_hdr("LOAD_EDGE (head, cmd=0x05, START=0x0000, COUNT=3)");
+            log_hdr("LOAD_EDGE (head, cmd=0x05, START=0x0000, COUNT=1)");
             send_byte(8'hAA);
-            send_byte(8'h17);
+            send_byte(8'h0B);
             send_byte(8'h05);
-            send_byte(8'h03);
+            send_byte(8'h01);
             send_byte(8'h00);
             send_byte(8'h00);
-            send_byte(8'h00); send_byte(8'h11);
-            send_byte(8'h00); send_byte(8'h22);
-            send_byte(8'h00); send_byte(8'h33);
-            send_byte(8'h00); send_byte(8'h44);
-            send_byte(8'h00); send_byte(8'h55);
-            send_byte(8'h00); send_byte(8'h66);
-            send_byte(8'h00); send_byte(8'h77);
-            send_byte(8'h00); send_byte(8'h88);
-            send_byte(8'h00); send_byte(8'h99);
-            send_byte(8'h05);
+            send_byte(8'h00); send_byte(8'h01);
+            send_byte(8'h00); send_byte(8'h02);
+            send_byte(8'h00); send_byte(8'h03);
+            send_byte(8'hD2);
         end
     endtask
 
@@ -182,36 +176,13 @@ module cmd_test_tb;
 
     task automatic load_vertex_begin;
         begin
-            log_hdr("LOAD_VERTEX_BEGIN (cmd=0x03, START=0x0010, COUNT=2)");
-            send_byte(8'hAA);
-            send_byte(8'h15);
-            send_byte(8'h03);
-            send_byte(8'h02);
-            send_byte(8'h00);
-            send_byte(8'h10);
-            send_byte(8'h00); send_byte(8'h64);
-            send_byte(8'h00); send_byte(8'hC8);
-            send_byte(8'h00); send_byte(8'h00);
-            send_byte(8'hE3);
-            send_byte(8'h10);
-            send_byte(8'h00); send_byte(8'h32);
-            send_byte(8'h00); send_byte(8'h96);
-            send_byte(8'h00); send_byte(8'h00);
-            send_byte(8'h4F);
-            send_byte(8'h20);
-            send_byte(8'h22);
-        end
-    endtask
-
-    task automatic load_vertex_begin_alt;
-        begin
-            log_hdr("LOAD_VERTEX_BEGIN (cmd=0x03, START=0x0004, COUNT=3)");
+            log_hdr("LOAD_VERTEX_BEGIN (cmd=0x03, START=0x0001, COUNT=3)");
             send_byte(8'hAA);
             send_byte(8'h1D);
             send_byte(8'h03);
             send_byte(8'h03);
             send_byte(8'h00);
-            send_byte(8'h04);
+            send_byte(8'h01);
             send_byte(8'h00); send_byte(8'h10);
             send_byte(8'h00); send_byte(8'h20);
             send_byte(8'h00); send_byte(8'h30);
@@ -227,7 +198,42 @@ module cmd_test_tb;
             send_byte(8'h00); send_byte(8'h90);
             send_byte(8'hF0);
             send_byte(8'h07);
-            send_byte(8'h9F);
+            send_byte(8'hAC);
+        end
+    endtask
+
+    task automatic load_vertex_begin_alt;
+        begin
+            log_hdr("LOAD_VERTEX_BEGIN (cmd=0x03, START=0x0007, COUNT=2)");
+            send_byte(8'hAA);
+            send_byte(8'h15);
+            send_byte(8'h03);
+            send_byte(8'h02);
+            send_byte(8'h00);
+            send_byte(8'h07);
+            send_byte(8'h00); send_byte(8'h64);
+            send_byte(8'h00); send_byte(8'hC8);
+            send_byte(8'h00); send_byte(8'h00);
+            send_byte(8'hE3);
+            send_byte(8'h10);
+            send_byte(8'h00); send_byte(8'h32);
+            send_byte(8'h00); send_byte(8'h96);
+            send_byte(8'h00); send_byte(8'h00);
+            send_byte(8'h4F);
+            send_byte(8'h20);
+            send_byte(8'hE8);
+        end
+    endtask
+
+    task automatic draw_tri();
+        begin
+            log_hdr("DRAW_TRI (cmd=0x06, DRAW TRI IN ADDR OF EDGES =0x0001)");
+            send_byte(8'hAA);
+            send_byte(8'h04);
+            send_byte(8'h06);
+            send_byte(8'h00);
+            send_byte(8'h01);
+            send_byte(8'h22);
         end
     endtask
 
@@ -246,15 +252,16 @@ module cmd_test_tb;
         load_vertex_begin_alt();
         load_edge();
         load_edge_cont();
+        draw_tri();
         swap();
         status();
 
-        load_vertex_begin();
-        load_vertex_begin_alt();
-        load_edge();
-        load_edge_cont();
-        swap();
-        status();
+        // load_vertex_begin();
+        // load_vertex_begin_alt();
+        // load_edge();
+        // load_edge_cont();
+        // swap();
+        // status();
 
         #(100*BIT_TIME);
         $display("---- CMD TB finished @ %t ----", $time);

@@ -12,7 +12,7 @@ module cmd_decoder (
     localparam integer LOAD_VERTEX_IDX  = 2;
     localparam integer UNKNOWN_1 = 3;
     localparam integer LOAD_EDGE_IDX = 4;
-    localparam integer UNKNOWN_2 = 5;
+    localparam integer DRAW_TRI = 5;
     localparam integer UNKNOWN_3 = 6;
     localparam integer STATUS_IDX = 7;
 
@@ -21,7 +21,7 @@ module cmd_decoder (
     localparam [7:0] CMD_LOAD_VERTEX_BEGIN  = 8'h03;
    /*localparam [7:0] _UNKNOWN_1            = 8'h04;*/
     localparam [7:0] CMD_LOAD_EDGE_BEGIN    = 8'h05;
-   /*localparam [7:0] _UNKNOWN_2            = 8'h06;*/
+    localparam [7:0] CMD_DRAW_TRI            = 8'h06;
     localparam [7:0] CMD_STATUS             = 8'h07;
 
     always @(posedge CLK) begin
@@ -35,6 +35,7 @@ module cmd_decoder (
                     CMD_CLEAN:              if (!BUSY[CLEAN_IDX])        CMD[CLEAN_IDX]        <= 1'b1;
                     CMD_LOAD_VERTEX_BEGIN:  if (!BUSY[LOAD_VERTEX_IDX])  CMD[LOAD_VERTEX_IDX]  <= 1'b1;
                     CMD_LOAD_EDGE_BEGIN:    if (!BUSY[LOAD_EDGE_IDX])    CMD[LOAD_EDGE_IDX]    <= 1'b1;
+                    CMD_DRAW_TRI:           if (!BUSY[DRAW_TRI])         CMD[DRAW_TRI]         <= 1'b1;
                     CMD_STATUS:             if (!BUSY[STATUS_IDX])       CMD[STATUS_IDX]       <= 1'b1;
                     default: ;
                 endcase
