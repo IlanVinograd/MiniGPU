@@ -209,22 +209,75 @@ module uart_pc_fpga #(
     wire [47:0] edge_q_b;
     wire [63:0] vertex_q_b;
 
+    wire                 tri_start;
+    wire [63:0]          tri_v0, tri_v1, tri_v2;
+    wire [63:0]          vt_out_v0, vt_out_v1, vt_out_v2;
+    wire                 vt_done;
+
+    wire [31:0] m00, m01, m02, m03;
+    wire [31:0] m10, m11, m12, m13;
+    wire [31:0] m20, m21, m22, m23;
+    wire [31:0] m30, m31, m32, m33;
+    wire [15:0] vp_width;
+    wire [15:0] vp_height;
+
+    gpu_uniforms #(.W(32)) u_gpu_uniforms (
+        .CLK      (CLK),
+        .rst      (rst),
+        .m00      (m00), .m01(m01), .m02(m02), .m03(m03),
+        .m10      (m10), .m11(m11), .m12(m12), .m13(m13),
+        .m20      (m20), .m21(m21), .m22(m22), .m23(m23),
+        .m30      (m30), .m31(m31), .m32(m32), .m33(m33),
+        .vp_width (vp_width),
+        .vp_height(vp_height)
+    );
+
+    vertex_transform #(
+        .DW_VERTEX(64),
+        .MW(32)
+    ) u_vertex_transform (
+        .CLK      (CLK),
+        .rst      (rst),
+        .start    (tri_start),
+        .in_v0    (tri_v0),
+        .in_v1    (tri_v1),
+        .in_v2    (tri_v2),
+
+        .m00(m00), .m01(m01), .m02(m02), .m03(m03),
+        .m10(m10), .m11(m11), .m12(m12), .m13(m13),
+        .m20(m20), .m21(m21), .m22(m22), .m23(m23),
+        .m30(m30), .m31(m31), .m32(m32), .m33(m33),
+        .vp_width (vp_width),
+        .vp_height(vp_height),
+
+        .out_v0   (vt_out_v0),
+        .out_v1   (vt_out_v1),
+        .out_v2   (vt_out_v2),
+        .done     (vt_done)
+    );
+
     cmd_draw_tri #(
         .DEPTH(1024),
         .DW_VERTEX(64),
         .DW_EDGE(48)
     ) u_cmd_draw_tri (
-        .CLK(CLK),
-        .rst(rst),
+        .CLK           (CLK),
+        .rst           (rst),
         .draw_req_pulse(packet_ready && (opcode == 8'h06)),
-        .edge_addr(draw_edge_addr16),
-        .edge_data(edge_q_b),
-        .vertex_data(vertex_q_b),
-        .ADDR_EDGE(draw_ADDR_EDGE),
-        .WE_EDGE(draw_WE_EDGE),
-        .ADDR_VERTEX(draw_ADDR_VERTEX),
-        .WE_VERTEX(draw_WE_VERTEX),
-        .BUSY(draw_busy)
+        .edge_addr     (draw_edge_addr16),
+        .edge_data     (edge_q_b),
+        .vertex_data   (vertex_q_b),
+        .ADDR_EDGE     (draw_ADDR_EDGE),
+        .WE_EDGE       (draw_WE_EDGE),
+        .ADDR_VERTEX   (draw_ADDR_VERTEX),
+        .WE_VERTEX     (draw_WE_VERTEX),
+        .BUSY          (draw_busy),
+
+        .tri_start     (tri_start),
+        .tri_v0        (tri_v0),
+        .tri_v1        (tri_v1),
+        .tri_v2        (tri_v2),
+        .vt_ready      (vt_done)
     );
 
     cmd_load_edge #(

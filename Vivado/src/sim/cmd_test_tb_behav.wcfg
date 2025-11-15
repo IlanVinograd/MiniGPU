@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="365,911.334 ns"></ZoomStartTime>
-      <ZoomEndTime time="366,032.635 ns"></ZoomEndTime>
-      <Cursor1Time time="365,950.334 ns"></Cursor1Time>
+      <ZoomStartTime time="365,975.100 ns"></ZoomStartTime>
+      <ZoomEndTime time="366,274.501 ns"></ZoomEndTime>
+      <Cursor1Time time="366,019.100 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="253"></NameColumnWidth>
-      <ValueColumnWidth column_width="124"></ValueColumnWidth>
+      <ValueColumnWidth column_width="118"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="28" />
+   <WVObjectSize size="29" />
    <wvobject fp_name="/cmd_test_tb/CLK" type="logic">
       <obj_property name="ElementShortName">CLK</obj_property>
       <obj_property name="ObjectShortName">CLK</obj_property>
@@ -76,6 +76,27 @@
    <wvobject fp_name="/cmd_test_tb/DUT/u_cmd_draw_tri/vertex_data" type="array">
       <obj_property name="ElementShortName">vertex_data[63:0]</obj_property>
       <obj_property name="ObjectShortName">vertex_data[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="group41" type="group">
+      <obj_property name="label">vertex_shader</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_vertex_transform/out_v0" type="array">
+         <obj_property name="ElementShortName">out_v0[63:0]</obj_property>
+         <obj_property name="ObjectShortName">out_v0[63:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_vertex_transform/out_v1" type="array">
+         <obj_property name="ElementShortName">out_v1[63:0]</obj_property>
+         <obj_property name="ObjectShortName">out_v1[63:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_vertex_transform/out_v2" type="array">
+         <obj_property name="ElementShortName">out_v2[63:0]</obj_property>
+         <obj_property name="ObjectShortName">out_v2[63:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_vertex_transform/done" type="logic">
+         <obj_property name="ElementShortName">done</obj_property>
+         <obj_property name="ObjectShortName">done</obj_property>
+      </wvobject>
    </wvobject>
    <wvobject fp_name="/cmd_test_tb/DUT/color" type="array">
       <obj_property name="ElementShortName">color[7:0]</obj_property>

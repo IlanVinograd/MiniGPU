@@ -25,7 +25,13 @@ module cmd_draw_tri #(
     output reg WE_EDGE,
     output reg [$clog2(DEPTH)-1:0] ADDR_VERTEX,
     output reg WE_VERTEX,
-    output reg BUSY
+    output reg BUSY,
+
+    output reg tri_start,
+    output reg [DW_VERTEX-1:0] tri_v0,
+    output reg [DW_VERTEX-1:0] tri_v1,
+    output reg [DW_VERTEX-1:0] tri_v2,
+    input vt_ready
 );
     localparam integer ADDR_W = $clog2(DEPTH);
 
@@ -35,7 +41,8 @@ module cmd_draw_tri #(
         V0_A   = 2, V0_LET  = 3, V0_R = 4,
         V1_LET = 5, V1_R = 6,
         V2_LET = 7, V2_R = 8,
-        DONE   = 9;
+        VT_S   = 9, VT_WAIT = 10,
+        DONE = 11;
 
     reg [3:0] stage;
     reg [15:0] edge_addr_lat;
@@ -55,9 +62,14 @@ module cmd_draw_tri #(
             vertex_data_lat[0] <= {DW_VERTEX{1'b0}};
             vertex_data_lat[1] <= {DW_VERTEX{1'b0}};
             vertex_data_lat[2] <= {DW_VERTEX{1'b0}};
+            tri_start <= 1'b0;
+            tri_v0    <= {DW_VERTEX{1'b0}};
+            tri_v1    <= {DW_VERTEX{1'b0}};
+            tri_v2    <= {DW_VERTEX{1'b0}};
         end else begin
             WE_EDGE   <= 1'b0;
             WE_VERTEX <= 1'b0;
+            tri_start <= 1'b0;
 
             case (stage)
                 IDLE: begin
@@ -103,6 +115,21 @@ module cmd_draw_tri #(
                 V2_R: begin
                     vertex_data_lat[2] <= vertex_data;
                     stage <= 4'd9;
+                end
+
+                VT_S: begin
+                    tri_v0    <= vertex_data_lat[0];
+                    tri_v1    <= vertex_data_lat[1];
+                    tri_v2    <= vertex_data_lat[2];
+                    tri_start <= 1'b1;
+                    stage     <= 4'd10;
+                end
+
+                VT_WAIT: begin
+                    if(vt_ready) begin
+                        // contiue here setup tri...
+                        stage <= DONE;
+                    end
                 end
 
                 DONE: begin
