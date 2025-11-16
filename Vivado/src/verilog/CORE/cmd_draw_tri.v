@@ -27,22 +27,26 @@ module cmd_draw_tri #(
     output reg WE_VERTEX,
     output reg BUSY,
 
-    output reg tri_start,
+    output reg vt_start,
     output reg [DW_VERTEX-1:0] tri_v0,
     output reg [DW_VERTEX-1:0] tri_v1,
     output reg [DW_VERTEX-1:0] tri_v2,
-    input vt_ready
+    input vt_ready,
+
+    output reg ts_start,
+    input ts_ready,
+    input area_zero
 );
     localparam integer ADDR_W = $clog2(DEPTH);
 
     localparam [3:0]
-        IDLE  = 0,
-        FETCH = 1,
-        V0_A   = 2, V0_LET  = 3, V0_R = 4,
-        V1_LET = 5, V1_R = 6,
-        V2_LET = 7, V2_R = 8,
-        VT_S   = 9, VT_WAIT = 10,
-        DONE = 11;
+        IDLE  =   0,
+        FETCH =   1,
+        V0_A   =  2, V0_LET  = 3, V0_R = 4,
+        V1_LET =  5, V1_R = 6,
+        V2_LET =  7, V2_R = 8,
+        VT_S   =  9, VT_WAIT = 10,
+        TS_WAIT = 11, DONE = 12;
 
     reg [3:0] stage;
     reg [15:0] edge_addr_lat;
@@ -62,14 +66,16 @@ module cmd_draw_tri #(
             vertex_data_lat[0] <= {DW_VERTEX{1'b0}};
             vertex_data_lat[1] <= {DW_VERTEX{1'b0}};
             vertex_data_lat[2] <= {DW_VERTEX{1'b0}};
-            tri_start <= 1'b0;
+            vt_start <= 1'b0;
             tri_v0    <= {DW_VERTEX{1'b0}};
             tri_v1    <= {DW_VERTEX{1'b0}};
             tri_v2    <= {DW_VERTEX{1'b0}};
+            ts_start <= 1'b0;
         end else begin
             WE_EDGE   <= 1'b0;
             WE_VERTEX <= 1'b0;
-            tri_start <= 1'b0;
+            vt_start  <= 1'b0;
+            ts_start  <= 1'b0;
 
             case (stage)
                 IDLE: begin
@@ -121,14 +127,30 @@ module cmd_draw_tri #(
                     tri_v0    <= vertex_data_lat[0];
                     tri_v1    <= vertex_data_lat[1];
                     tri_v2    <= vertex_data_lat[2];
-                    tri_start <= 1'b1;
-                    stage     <= 4'd10;
+                    vt_start  <= 1'b1;
+                    stage     <= VT_WAIT;
                 end
 
                 VT_WAIT: begin
                     if(vt_ready) begin
-                        // contiue here setup tri...
-                        stage <= DONE;
+                        vt_start <= 1'b0;
+
+                        ts_start <= 1'b1;
+
+                        stage <= TS_WAIT;
+                    end
+                end
+                
+                TS_WAIT: begin
+                    if (ts_ready) begin
+                        ts_start <= 1'b0;
+
+                        if (area_zero)
+                            stage <= DONE;
+                        else begin
+                            // RASTER_*;
+                            stage <= DONE;
+                        end
                     end
                 end
 

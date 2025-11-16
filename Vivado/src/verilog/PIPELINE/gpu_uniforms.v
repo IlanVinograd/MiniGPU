@@ -30,8 +30,8 @@ module gpu_uniforms #(
             m20 <= 0; m21 <= 0; m23 <= 0;
             m30 <= 0; m31 <= 0; m32 <= 0;
 
-            vp_width  <= 16'd320;
-            vp_height <= 16'd240;
+            vp_width  <= 16'd256;
+            vp_height <= 16'd192;
         end else begin
             // if (we) case (addr) ... new CMD
         end

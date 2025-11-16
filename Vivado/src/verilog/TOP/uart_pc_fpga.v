@@ -209,7 +209,7 @@ module uart_pc_fpga #(
     wire [47:0] edge_q_b;
     wire [63:0] vertex_q_b;
 
-    wire                 tri_start;
+    wire                 vt_start;
     wire [63:0]          tri_v0, tri_v1, tri_v2;
     wire [63:0]          vt_out_v0, vt_out_v1, vt_out_v2;
     wire                 vt_done;
@@ -238,7 +238,7 @@ module uart_pc_fpga #(
     ) u_vertex_transform (
         .CLK      (CLK),
         .rst      (rst),
-        .start    (tri_start),
+        .start    (vt_start),
         .in_v0    (tri_v0),
         .in_v1    (tri_v1),
         .in_v2    (tri_v2),
@@ -254,6 +254,31 @@ module uart_pc_fpga #(
         .out_v1   (vt_out_v1),
         .out_v2   (vt_out_v2),
         .done     (vt_done)
+    );
+
+    wire [15:0] x_min_out, x_max_out, y_min_out, y_max_out;
+    wire ts_start, ts_done, area_zero;
+
+    setup_tri #(
+        .DW_VERTEX(64)
+    ) u_setup_tri (
+        .CLK(CLK),
+        .rst(rst),
+        .ts_start(ts_start),
+
+        .vp_width(vp_width),
+        .vp_height(vp_height),
+        .in_v0(vt_out_v0),
+        .in_v1(vt_out_v1),
+        .in_v2(vt_out_v2),
+
+        .x_min_out(x_min_out),
+        .x_max_out(x_max_out),
+        .y_min_out(y_min_out),
+        .y_max_out(y_max_out),
+
+        .ts_done(ts_done),
+        .area_zero(area_zero)
     );
 
     cmd_draw_tri #(
@@ -273,11 +298,15 @@ module uart_pc_fpga #(
         .WE_VERTEX     (draw_WE_VERTEX),
         .BUSY          (draw_busy),
 
-        .tri_start     (tri_start),
+        .vt_start      (vt_start),
         .tri_v0        (tri_v0),
         .tri_v1        (tri_v1),
         .tri_v2        (tri_v2),
-        .vt_ready      (vt_done)
+        .vt_ready      (vt_done),
+
+        .ts_start(ts_start),
+        .ts_ready(ts_done),
+        .area_zero(area_zero)
     );
 
     cmd_load_edge #(

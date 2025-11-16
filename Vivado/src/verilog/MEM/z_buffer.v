@@ -14,6 +14,12 @@ module z_buffer #(
     (* ram_style = "block", keep = "true" *)
     reg [15:0] MEM [0:SIZE-1];
 
+    integer i;
+    initial begin
+        for (i=0; i<SIZE; i=i+1)
+            MEM[i] = 16'hFFFF;
+    end
+
     always @(posedge CLK) begin
         
         if (rst) begin

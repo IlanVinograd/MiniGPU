@@ -183,6 +183,34 @@ module cmd_test_tb;
             send_byte(8'h03);
             send_byte(8'h00);
             send_byte(8'h01);
+
+            send_byte(8'h00); send_byte(8'h00);
+            send_byte(8'h00); send_byte(8'h00);
+            send_byte(8'h00); send_byte(8'h00);
+            send_byte(8'hA5);
+            send_byte(8'h01);
+
+            send_byte(8'h00); send_byte(8'h01);
+            send_byte(8'h00); send_byte(8'h00);
+            send_byte(8'h00); send_byte(8'h00);
+            send_byte(8'h5A);
+            send_byte(8'h0F);
+
+            send_byte(8'h00); send_byte(8'h00);
+            send_byte(8'h00); send_byte(8'h01);
+            send_byte(8'h00); send_byte(8'h00);
+            send_byte(8'hF0);
+            send_byte(8'h07);
+
+            send_byte(8'hE5);
+        
+
+            /*send_byte(8'hAA);
+            send_byte(8'h1D);
+            send_byte(8'h03);
+            send_byte(8'h03);
+            send_byte(8'h00);
+            send_byte(8'h01);
             send_byte(8'h00); send_byte(8'h10);
             send_byte(8'h00); send_byte(8'h20);
             send_byte(8'h00); send_byte(8'h30);
@@ -198,7 +226,7 @@ module cmd_test_tb;
             send_byte(8'h00); send_byte(8'h90);
             send_byte(8'hF0);
             send_byte(8'h07);
-            send_byte(8'hAC);
+            send_byte(8'hAC);*/
         end
     endtask
 
