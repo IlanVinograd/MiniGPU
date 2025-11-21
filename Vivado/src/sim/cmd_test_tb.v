@@ -184,25 +184,29 @@ module cmd_test_tb;
             send_byte(8'h00);
             send_byte(8'h01);
 
-            send_byte(8'h00); send_byte(8'h00);
-            send_byte(8'h00); send_byte(8'h00);
-            send_byte(8'h00); send_byte(8'h00);
+            // v0: (20,10,0), col=A5, uv=1
+            send_byte(8'h00); send_byte(8'h14); // x = 0x0014 = 20
+            send_byte(8'h00); send_byte(8'h0A); // y = 0x000A = 10
+            send_byte(8'h00); send_byte(8'h00); // z = 0
             send_byte(8'hA5);
             send_byte(8'h01);
 
-            send_byte(8'h00); send_byte(8'h01);
-            send_byte(8'h00); send_byte(8'h00);
-            send_byte(8'h00); send_byte(8'h00);
+            // v1: (35,10,0), col=5A, uv=F
+            send_byte(8'h00); send_byte(8'h23); // x = 0x0023 = 35
+            send_byte(8'h00); send_byte(8'h0A); // y = 10
+            send_byte(8'h00); send_byte(8'h00); // z = 0
             send_byte(8'h5A);
             send_byte(8'h0F);
 
-            send_byte(8'h00); send_byte(8'h00);
-            send_byte(8'h00); send_byte(8'h01);
-            send_byte(8'h00); send_byte(8'h00);
+            // v2: (23,35,0), col=F0, uv=7
+            send_byte(8'h00); send_byte(8'h17); // x = 0x0017 = 23
+            send_byte(8'h00); send_byte(8'h23); // y = 0x0023 = 35
+            send_byte(8'h00); send_byte(8'h00); // z = 0
             send_byte(8'hF0);
             send_byte(8'h07);
 
-            send_byte(8'hE5);
+            send_byte(8'h4F);
+
         
 
             /*send_byte(8'hAA);
