@@ -29,6 +29,9 @@ module uart_pc_fpga #(
     localparam integer OPCODE_BYTE = 2;
     localparam integer ARG0_BYTE   = 3;
 
+    localparam integer RAST_SIZE    = 49152;
+    localparam integer RAST_ADDR_W  = $clog2(RAST_SIZE);
+
     wire [7:0] rx_data;
     wire       rx_valid;
     wire [7:0] tx_data;
@@ -258,6 +261,7 @@ module uart_pc_fpga #(
 
     wire [15:0] x_min_out, x_max_out, y_min_out, y_max_out;
     wire ts_start, ts_done, area_zero;
+    wire rt_start, rt_done;
 
     setup_tri #(
         .DW_VERTEX(64)
@@ -281,10 +285,63 @@ module uart_pc_fpga #(
         .area_zero(area_zero)
     );
 
+    wire [RAST_ADDR_W-1:0] rt_addr_vram;
+    wire [7:0]            rt_data_vram;
+    wire                   rt_we_vram;
+
+    wire [RAST_ADDR_W-1:0] rt_addr_z;
+    wire [15:0]            rt_data_z;
+    wire                   rt_we_z;
+
+    rasterization #(
+        .SIZE     (RAST_SIZE),
+        .ADDR_W   (RAST_ADDR_W),
+        .DW_VERTEX(64)
+    ) u_rasterization (
+        .CLK      (CLK),
+        .rst      (rst),
+        .rt_start (rt_start),
+
+        .x_min_in (x_min_out),
+        .x_max_in (x_max_out),
+        .y_min_in (y_min_out),
+        .y_max_in (y_max_out),
+
+        .in_v0    (vt_out_v0),
+        .in_v1    (vt_out_v1),
+        .in_v2    (vt_out_v2),
+
+        .vp_width (vp_width),
+
+        .addr_vram(rt_addr_vram),
+        .data_vram(rt_data_vram),
+        .we_vram  (rt_we_vram),
+
+        .addr_z   (rt_addr_z),
+        .data_z   (rt_data_z),
+        .we_z     (rt_we_z),
+
+        .rt_done  (rt_done)
+    );
+
+    wire [15:0] z_q;
+
+    z_buffer #(
+        .SIZE   (RAST_SIZE),
+        .ADDR_W (RAST_ADDR_W)
+    ) u_z_buffer (
+        .CLK   (CLK),
+        .rst   (rst),
+        .WE_A  (rt_we_z),
+        .DATA_A(rt_data_z),
+        .ADDR_A(rt_addr_z),
+        .Q_A   (z_q)
+    );
+
     cmd_draw_tri #(
-        .DEPTH(1024),
+        .DEPTH    (1024),
         .DW_VERTEX(64),
-        .DW_EDGE(48)
+        .DW_EDGE  (48)
     ) u_cmd_draw_tri (
         .CLK           (CLK),
         .rst           (rst),
@@ -304,9 +361,12 @@ module uart_pc_fpga #(
         .tri_v2        (tri_v2),
         .vt_ready      (vt_done),
 
-        .ts_start(ts_start),
-        .ts_ready(ts_done),
-        .area_zero(area_zero)
+        .ts_start      (ts_start),
+        .ts_ready      (ts_done),
+        .area_zero     (area_zero),
+
+        .rt_start      (rt_start),
+        .rt_ready      (rt_done)
     );
 
     cmd_load_edge #(
@@ -379,6 +439,16 @@ module uart_pc_fpga #(
         .Q_B    (vertex_q_b)
     );
 
+    wire [17:0] vram_addr_b_mux;
+    wire [7:0]  vram_data_b_mux;
+    wire        vram_we_b_mux;
+
+    wire [7:0] rt_color = rt_data_vram;
+
+    assign vram_addr_b_mux = (rt_we_vram) ? {1'b0, rt_addr_vram} : clear_addr_b;
+    assign vram_data_b_mux = (rt_we_vram) ? rt_color           : clear_data_b;
+    assign vram_we_b_mux   = rt_we_vram | clear_we_b;
+
     vram_dual_clock #(.TOTAL_BYTES(98304)) u_vram (
         .CLK_A (clk25),
         .DATA_A(8'h00),
@@ -386,9 +456,9 @@ module uart_pc_fpga #(
         .WE_A  (1'b0),
         .Q_A   (vram_q),
         .CLK_B (CLK),
-        .DATA_B(clear_data_b),
-        .ADDR_B(clear_addr_b),
-        .WE_B  (clear_we_b),
+        .DATA_B(vram_data_b_mux),
+        .ADDR_B(vram_addr_b_mux),
+        .WE_B  (vram_we_b_mux),
         .Q_B   ()
     );
 
@@ -400,4 +470,5 @@ module uart_pc_fpga #(
     assign BUSY[DRAW_TRI]         = draw_busy;
     assign BUSY[UNKNOWN_3]        = 1'b0;
     assign BUSY[STATUS_IDX]       = 1'b0;
+
 endmodule

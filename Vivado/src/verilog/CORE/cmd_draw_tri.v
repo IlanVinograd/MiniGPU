@@ -35,7 +35,10 @@ module cmd_draw_tri #(
 
     output reg ts_start,
     input ts_ready,
-    input area_zero
+    input area_zero,
+
+    output reg rt_start,
+    input rt_ready
 );
     localparam integer ADDR_W = $clog2(DEPTH);
 
@@ -46,7 +49,8 @@ module cmd_draw_tri #(
         V1_LET =  5, V1_R = 6,
         V2_LET =  7, V2_R = 8,
         VT_S   =  9, VT_WAIT = 10,
-        TS_WAIT = 11, DONE = 12;
+        TS_WAIT = 11, RT_WAIT = 12, 
+        DONE = 13;
 
     reg [3:0] stage;
     reg [15:0] edge_addr_lat;
@@ -71,11 +75,13 @@ module cmd_draw_tri #(
             tri_v1    <= {DW_VERTEX{1'b0}};
             tri_v2    <= {DW_VERTEX{1'b0}};
             ts_start <= 1'b0;
+            rt_start <= 1'b0;
         end else begin
             WE_EDGE   <= 1'b0;
             WE_VERTEX <= 1'b0;
             vt_start  <= 1'b0;
             ts_start  <= 1'b0;
+            rt_start  <= 1'b0;
 
             case (stage)
                 IDLE: begin
@@ -148,9 +154,16 @@ module cmd_draw_tri #(
                         if (area_zero)
                             stage <= DONE;
                         else begin
-                            // RASTER_*;
-                            stage <= DONE;
+                            rt_start <= 1'b1;
+                            stage <= RT_WAIT;
                         end
+                    end
+                end
+
+                RT_WAIT: begin
+                    if(rt_ready) begin
+                        rt_start <= 1'b0;
+                        stage <= DONE;
                     end
                 end
 

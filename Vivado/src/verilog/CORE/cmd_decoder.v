@@ -21,7 +21,7 @@ module cmd_decoder (
     localparam [7:0] CMD_LOAD_VERTEX_BEGIN  = 8'h03;
    /*localparam [7:0] _UNKNOWN_1            = 8'h04;*/
     localparam [7:0] CMD_LOAD_EDGE_BEGIN    = 8'h05;
-    localparam [7:0] CMD_DRAW_TRI            = 8'h06;
+    localparam [7:0] CMD_DRAW_TRI           = 8'h06;
     localparam [7:0] CMD_STATUS             = 8'h07;
 
     always @(posedge CLK) begin

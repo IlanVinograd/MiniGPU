@@ -178,59 +178,145 @@ module cmd_test_tb;
         begin
             log_hdr("LOAD_VERTEX_BEGIN (cmd=0x03, START=0x0001, COUNT=3)");
             send_byte(8'hAA);
-            send_byte(8'h1D);
-            send_byte(8'h03);
-            send_byte(8'h03);
-            send_byte(8'h00);
-            send_byte(8'h01);
+            send_byte(8'h1D); // LEN
+            send_byte(8'h03); // opcode LOAD_VERTEX_BEGIN
+            send_byte(8'h03); // COUNT = 3
+            send_byte(8'h00); // START hi
+            send_byte(8'h01); // START lo
 
-            // v0: (20,10,0), col=A5, uv=1
-            send_byte(8'h00); send_byte(8'h14); // x = 0x0014 = 20
-            send_byte(8'h00); send_byte(8'h0A); // y = 0x000A = 10
-            send_byte(8'h00); send_byte(8'h00); // z = 0
-            send_byte(8'hA5);
-            send_byte(8'h01);
-
-            // v1: (35,10,0), col=5A, uv=F
-            send_byte(8'h00); send_byte(8'h23); // x = 0x0023 = 35
+            // v0: (20,10,0), col=E0 (ярко-красный), uv=1
+            send_byte(8'h00); send_byte(8'h14); // x = 20
             send_byte(8'h00); send_byte(8'h0A); // y = 10
             send_byte(8'h00); send_byte(8'h00); // z = 0
-            send_byte(8'h5A);
-            send_byte(8'h0F);
+            send_byte(8'hE0);                   // RGB332 = full red
+            send_byte(8'h01);                   // uv
 
-            // v2: (23,35,0), col=F0, uv=7
-            send_byte(8'h00); send_byte(8'h17); // x = 0x0017 = 23
-            send_byte(8'h00); send_byte(8'h23); // y = 0x0023 = 35
+            // v1: (35,10,0), col=E0, uv=F
+            send_byte(8'h00); send_byte(8'h23); // x = 35
+            send_byte(8'h00); send_byte(8'h0A); // y = 10
             send_byte(8'h00); send_byte(8'h00); // z = 0
-            send_byte(8'hF0);
-            send_byte(8'h07);
+            send_byte(8'hE0);                   // RGB332 = full red
+            send_byte(8'h0F);                   // uv
 
-            send_byte(8'h4F);
+            // v2: (23,35,0), col=E0, uv=7
+            send_byte(8'h00); send_byte(8'h17); // x = 23
+            send_byte(8'h00); send_byte(8'h23); // y = 35
+            send_byte(8'h00); send_byte(8'h00); // z = 0
+            send_byte(8'hE0);                   // RGB332 = full red
+            send_byte(8'h07);                   // uv
 
-        
+            // CRC8 для новых данных = 0x88
+            send_byte(8'h88);
 
-            /*send_byte(8'hAA);
-            send_byte(8'h1D);
-            send_byte(8'h03);
-            send_byte(8'h03);
-            send_byte(8'h00);
-            send_byte(8'h01);
-            send_byte(8'h00); send_byte(8'h10);
-            send_byte(8'h00); send_byte(8'h20);
-            send_byte(8'h00); send_byte(8'h30);
-            send_byte(8'hA5);
-            send_byte(8'h01);
-            send_byte(8'h00); send_byte(8'h40);
-            send_byte(8'h00); send_byte(8'h50);
-            send_byte(8'h00); send_byte(8'h60);
-            send_byte(8'h5A);
-            send_byte(8'h0F);
-            send_byte(8'h00); send_byte(8'h70);
-            send_byte(8'h00); send_byte(8'h80);
-            send_byte(8'h00); send_byte(8'h90);
-            send_byte(8'hF0);
-            send_byte(8'h07);
-            send_byte(8'hAC);*/
+            // log_hdr("LOAD_VERTEX_BEGIN (cmd=0x03, START=0x0001, COUNT=3)");
+            // send_byte(8'hAA);
+            // send_byte(8'h1D);
+            // send_byte(8'h03);
+            // send_byte(8'h03);
+            // send_byte(8'h00);
+            // send_byte(8'h01);
+
+            // send_byte(8'h00); send_byte(8'h28);
+            // send_byte(8'h00); send_byte(8'h14);
+            // send_byte(8'h00); send_byte(8'h00);
+            // send_byte(8'h00);
+            // send_byte(8'h01);
+
+            // send_byte(8'h00); send_byte(8'h46);
+            // send_byte(8'h00); send_byte(8'h14);
+            // send_byte(8'h00); send_byte(8'h00);
+            // send_byte(8'h00);
+            // send_byte(8'h0F);
+
+            // send_byte(8'h00); send_byte(8'h2E);
+            // send_byte(8'h00); send_byte(8'h46);
+            // send_byte(8'h00); send_byte(8'h00);
+            // send_byte(8'h00);
+            // send_byte(8'h07);
+
+            // send_byte(8'h23);
+            
+            // log_hdr("LOAD_VERTEX_BEGIN (cmd=0x03, START=0x0001, COUNT=3)");
+            // send_byte(8'hAA);
+            // send_byte(8'h1D);
+            // send_byte(8'h03);
+            // send_byte(8'h03);
+            // send_byte(8'h00);
+            // send_byte(8'h01);
+
+            // // v0: (20,10,0), col=A5, uv=1
+            // send_byte(8'h00); send_byte(8'h14); // x = 0x0014 = 20
+            // send_byte(8'h00); send_byte(8'h0A); // y = 0x000A = 10
+            // send_byte(8'h00); send_byte(8'h00); // z = 0
+            // send_byte(8'hA5);
+            // send_byte(8'h01);
+
+            // // v1: (35,10,0), col=5A, uv=F
+            // send_byte(8'h00); send_byte(8'h23); // x = 0x0023 = 35
+            // send_byte(8'h00); send_byte(8'h0A); // y = 10
+            // send_byte(8'h00); send_byte(8'h00); // z = 0
+            // send_byte(8'h5A);
+            // send_byte(8'h0F);
+
+            // // v2: (23,35,0), col=F0, uv=7
+            // send_byte(8'h00); send_byte(8'h17); // x = 0x0017 = 23
+            // send_byte(8'h00); send_byte(8'h23); // y = 0x0023 = 35
+            // send_byte(8'h00); send_byte(8'h00); // z = 0
+            // send_byte(8'hF0);
+            // send_byte(8'h07);
+
+            // send_byte(8'h4F);
+
+            // log_hdr("LOAD_VERTEX_BEGIN (cmd=0x03, START=0x0001, COUNT=3)");
+            // send_byte(8'hAA);
+            // send_byte(8'h1D);
+            // send_byte(8'h03);
+            // send_byte(8'h03);
+            // send_byte(8'h00);
+            // send_byte(8'h01);
+
+            // send_byte(8'h00); send_byte(8'h28);
+            // send_byte(8'h00); send_byte(8'h14);
+            // send_byte(8'h00); send_byte(8'h00);
+            // send_byte(8'hA5);
+            // send_byte(8'h01);
+
+            // send_byte(8'h00); send_byte(8'h46);
+            // send_byte(8'h00); send_byte(8'h14);
+            // send_byte(8'h00); send_byte(8'h00);
+            // send_byte(8'h5A);
+            // send_byte(8'h0F);
+
+            // send_byte(8'h00); send_byte(8'h2E);
+            // send_byte(8'h00); send_byte(8'h46);
+            // send_byte(8'h00); send_byte(8'h00);
+            // send_byte(8'hF0);
+            // send_byte(8'h07);
+
+            // send_byte(8'hC8);
+
+            // send_byte(8'hAA);
+            // send_byte(8'h1D);
+            // send_byte(8'h03);
+            // send_byte(8'h03);
+            // send_byte(8'h00);
+            // send_byte(8'h01);
+            // send_byte(8'h00); send_byte(8'h10);
+            // send_byte(8'h00); send_byte(8'h20);
+            // send_byte(8'h00); send_byte(8'h30);
+            // send_byte(8'hA5);
+            // send_byte(8'h01);
+            // send_byte(8'h00); send_byte(8'h40);
+            // send_byte(8'h00); send_byte(8'h50);
+            // send_byte(8'h00); send_byte(8'h60);
+            // send_byte(8'h5A);
+            // send_byte(8'h0F);
+            // send_byte(8'h00); send_byte(8'h70);
+            // send_byte(8'h00); send_byte(8'h80);
+            // send_byte(8'h00); send_byte(8'h90);
+            // send_byte(8'hF0);
+            // send_byte(8'h07);
+            // send_byte(8'hAC);
         end
     endtask
 
@@ -276,24 +362,28 @@ module cmd_test_tb;
         #(20*CLK_PERIOD_NS);
         #(5*BIT_TIME);
 
-        clear();
-        swap();
-        status();
+        // clear();
+        // swap();
+        // clear();
+        // status();
 
-        load_vertex_begin();
-        load_vertex_begin_alt();
-        load_edge();
-        load_edge_cont();
-        draw_tri();
-        swap();
-        status();
-
-        // load_vertex_begin();
-        // load_vertex_begin_alt();
-        // load_edge();
-        // load_edge_cont();
+        //load_vertex_begin();
+        //load_vertex_begin_alt();
+        //load_edge();
+        //load_edge_cont();
+        // draw_tri();
         // swap();
         // status();
+
+        load_vertex_begin();
+        status();
+        load_edge();
+        status();
+        //clear();
+        draw_tri();
+        status();
+        swap();
+        status();
 
         #(100*BIT_TIME);
         $display("---- CMD TB finished @ %t ----", $time);

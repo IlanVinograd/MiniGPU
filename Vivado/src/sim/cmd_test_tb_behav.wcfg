@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="365,903.600 ns"></ZoomStartTime>
-      <ZoomEndTime time="366,212.001 ns"></ZoomEndTime>
-      <Cursor1Time time="365,929.600 ns"></Cursor1Time>
+      <ZoomStartTime time="182,406.500 ns"></ZoomStartTime>
+      <ZoomEndTime time="183,050.001 ns"></ZoomEndTime>
+      <Cursor1Time time="182,585.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="238"></NameColumnWidth>
-      <ValueColumnWidth column_width="127"></ValueColumnWidth>
+      <ValueColumnWidth column_width="115"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="30" />
+   <WVObjectSize size="31" />
    <wvobject fp_name="/cmd_test_tb/CLK" type="logic">
       <obj_property name="ElementShortName">CLK</obj_property>
       <obj_property name="ObjectShortName">CLK</obj_property>
@@ -270,9 +270,69 @@
          <obj_property name="UseCustomSignalColor">true</obj_property>
       </wvobject>
    </wvobject>
+   <wvobject fp_name="group207" type="group">
+      <obj_property name="label">Raster</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_vram/ADDR_B" type="array">
+         <obj_property name="ElementShortName">ADDR_B[17:0]</obj_property>
+         <obj_property name="ObjectShortName">ADDR_B[17:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_vram/DATA_B" type="array">
+         <obj_property name="ElementShortName">DATA_B[7:0]</obj_property>
+         <obj_property name="ObjectShortName">DATA_B[7:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_rasterization/addr_vram" type="array">
+         <obj_property name="ElementShortName">addr_vram[15:0]</obj_property>
+         <obj_property name="ObjectShortName">addr_vram[15:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_rasterization/inside" type="logic">
+         <obj_property name="ElementShortName">inside</obj_property>
+         <obj_property name="ObjectShortName">inside</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_rasterization/v0_col" type="array">
+         <obj_property name="ElementShortName">v0_col[7:0]</obj_property>
+         <obj_property name="ObjectShortName">v0_col[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_rasterization/data_vram" type="array">
+         <obj_property name="ElementShortName">data_vram[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_vram[7:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_rasterization/we_vram" type="logic">
+         <obj_property name="ElementShortName">we_vram</obj_property>
+         <obj_property name="ObjectShortName">we_vram</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_vram/WE_B" type="logic">
+         <obj_property name="ElementShortName">WE_B</obj_property>
+         <obj_property name="ObjectShortName">WE_B</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cmd_test_tb/DUT/rt_we_vram" type="logic">
+         <obj_property name="ElementShortName">rt_we_vram</obj_property>
+         <obj_property name="ObjectShortName">rt_we_vram</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cmd_test_tb/DUT/clear_we_b" type="logic">
+         <obj_property name="ElementShortName">clear_we_b</obj_property>
+         <obj_property name="ObjectShortName">clear_we_b</obj_property>
+      </wvobject>
+   </wvobject>
    <wvobject fp_name="group28" type="group">
       <obj_property name="label">RGB</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/cmd_test_tb/BLUE" type="array">
          <obj_property name="ElementShortName">BLUE[3:0]</obj_property>
          <obj_property name="ObjectShortName">BLUE[3:0]</obj_property>
