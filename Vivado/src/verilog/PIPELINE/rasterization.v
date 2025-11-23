@@ -1,52 +1,52 @@
 `timescale 1ns/1ps
 
 module rasterization #(
-    parameter integer SIZE     = 49_152,
-    parameter integer ADDR_W   = $clog2(SIZE),
+    parameter integer SIZE      = 49_152,
+    parameter integer ADDR_W    = $clog2(SIZE),
     parameter integer DW_VERTEX = 64
 )(
-    input  wire              CLK,
-    input  wire              rst,
-    input  wire              rt_start,
+    input  wire                 CLK,
+    input  wire                 rst,
+    input  wire                 rt_start,
 
-    input  wire [15:0]       x_min_in,
-    input  wire [15:0]       x_max_in,
-    input  wire [15:0]       y_min_in,
-    input  wire [15:0]       y_max_in,
+    input  wire [15:0]          x_min_in,
+    input  wire [15:0]          x_max_in,
+    input  wire [15:0]          y_min_in,
+    input  wire [15:0]          y_max_in,
 
     input  wire [DW_VERTEX-1:0] in_v0,
     input  wire [DW_VERTEX-1:0] in_v1,
     input  wire [DW_VERTEX-1:0] in_v2,
 
-    input  wire [15:0]       vp_width,
+    input  wire [15:0]          vp_width,
+    input  wire                 side,
 
-    output reg  [ADDR_W-1:0] addr_vram,
-    output reg  [7:0]       data_vram,
-    output reg               we_vram,
+    output reg  [17:0]          addr_vram,
+    output reg  [7:0]           data_vram,
+    output reg                  we_vram,
 
-    output reg  [ADDR_W-1:0] addr_z,
-    output reg  [15:0]       data_z,
-    output reg               we_z,
+    output reg  [ADDR_W-1:0]    addr_z,
+    output reg  [15:0]          data_z,
+    output reg                  we_z,
 
-    output reg               rt_done
+    output reg                  rt_done
 );
-    wire [15:0] v0_x = in_v0[63:48];
-    wire [15:0] v0_y = in_v0[47:32];
-    wire [15:0] v0_z = in_v0[31:16];
+    wire [15:0] v0_x   = in_v0[63:48];
+    wire [15:0] v0_y   = in_v0[47:32];
+    wire [15:0] v0_z   = in_v0[31:16];
     wire [7:0]  v0_col = in_v0[15:8];
 
-    wire [15:0] v1_x = in_v1[63:48];
-    wire [15:0] v1_y = in_v1[47:32];
-    wire [15:0] v1_z = in_v1[31:16];
+    wire [15:0] v1_x   = in_v1[63:48];
+    wire [15:0] v1_y   = in_v1[47:32];
+    wire [15:0] v1_z   = in_v1[31:16];
     wire [7:0]  v1_col = in_v1[15:8];
 
-    wire [15:0] v2_x = in_v2[63:48];
-    wire [15:0] v2_y = in_v2[47:32];
-    wire [15:0] v2_z = in_v2[31:16];
+    wire [15:0] v2_x   = in_v2[63:48];
+    wire [15:0] v2_y   = in_v2[47:32];
+    wire [15:0] v2_z   = in_v2[31:16];
     wire [7:0]  v2_col = in_v2[15:8];
 
     reg [15:0] x_min, x_max, y_min, y_max;
-
     reg [15:0] cur_x, cur_y;
 
     localparam [1:0]
@@ -74,7 +74,9 @@ module rasterization #(
 
     wire inside = (E0 >= 0 && E1 >= 0 && E2 >= 0);
 
-    wire [31:0] addr_lin = ( $unsigned(cur_y) * $unsigned(vp_width) ) + $unsigned(cur_x);
+    wire [31:0]        addr_lin  = $unsigned(cur_y) * $unsigned(vp_width) + $unsigned(cur_x);
+    wire [ADDR_W-1:0]  lin_addr  = addr_lin[ADDR_W-1:0];
+    localparam [17:0]  FB_SIZE   = SIZE;
 
     always @(posedge CLK) begin
         if (rst) begin
@@ -82,8 +84,8 @@ module rasterization #(
             rt_done   <= 1'b0;
             we_vram   <= 1'b0;
             we_z      <= 1'b0;
-            addr_vram <= {ADDR_W{1'b0}};
-            data_vram <= 16'd0;
+            addr_vram <= 18'd0;
+            data_vram <= 8'd0;
             addr_z    <= {ADDR_W{1'b0}};
             data_z    <= 16'd0;
             x_min     <= 16'd0;
@@ -104,22 +106,23 @@ module rasterization #(
                         x_max <= x_max_in;
                         y_min <= y_min_in;
                         y_max <= y_max_in;
-
                         cur_x <= x_min_in;
                         cur_y <= y_min_in;
-
                         state <= RT_RUN;
                     end
                 end
 
                 RT_RUN: begin
-                    addr_vram <= addr_lin[ADDR_W-1:0];
-                    addr_z    <= addr_lin[ADDR_W-1:0];
+                    if (side)
+                        addr_vram <= {2'b00, lin_addr};
+                    else
+                        addr_vram <= {2'b00, lin_addr} + FB_SIZE;
+
+                    addr_z <= lin_addr;
 
                     if (inside) begin
                         we_vram   <= 1'b1;
-                        data_vram <= v0_col; // stub for color v0 color
-                        // here Z buffer check will be.
+                        data_vram <= v0_col;
                     end
 
                     if (cur_x < x_max) begin
@@ -129,7 +132,7 @@ module rasterization #(
                         if (cur_y < y_max) begin
                             cur_y <= cur_y + 1'b1;
                         end else begin
-                            state   <= RT_DONE;
+                            state <= RT_DONE;
                         end
                     end
                 end

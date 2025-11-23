@@ -11,15 +11,18 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="182,406.500 ns"></ZoomStartTime>
-      <ZoomEndTime time="183,050.001 ns"></ZoomEndTime>
-      <Cursor1Time time="182,585.000 ns"></Cursor1Time>
+      <ZoomStartTime time="165,823.717 ns"></ZoomStartTime>
+      <ZoomEndTime time="165,891.418 ns"></ZoomEndTime>
+      <Cursor1Time time="165,845.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="238"></NameColumnWidth>
-      <ValueColumnWidth column_width="115"></ValueColumnWidth>
+      <NameColumnWidth column_width="233"></NameColumnWidth>
+      <ValueColumnWidth column_width="90"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="31" />
+   <WVObjectSize size="38" />
+   <wave_markers>
+      <marker time="211755000" label="" />
+   </wave_markers>
    <wvobject fp_name="/cmd_test_tb/CLK" type="logic">
       <obj_property name="ElementShortName">CLK</obj_property>
       <obj_property name="ObjectShortName">CLK</obj_property>
@@ -57,9 +60,37 @@
       <obj_property name="ElementShortName">BUSY</obj_property>
       <obj_property name="ObjectShortName">BUSY</obj_property>
    </wvobject>
-   <wvobject fp_name="/cmd_test_tb/DUT/u_vertex_buffer/Q_B" type="array">
-      <obj_property name="ElementShortName">Q_B[63:0]</obj_property>
-      <obj_property name="ObjectShortName">Q_B[63:0]</obj_property>
+   <wvobject fp_name="/cmd_test_tb/DUT/u_edge_buffer/WE_A" type="logic">
+      <obj_property name="ElementShortName">WE_A</obj_property>
+      <obj_property name="ObjectShortName">WE_A</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/u_edge_buffer/WE_B" type="logic">
+      <obj_property name="ElementShortName">WE_B</obj_property>
+      <obj_property name="ObjectShortName">WE_B</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/u_edge_buffer/Q_A" type="array">
+      <obj_property name="ElementShortName">Q_A[47:0]</obj_property>
+      <obj_property name="ObjectShortName">Q_A[47:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/u_edge_buffer/ADDR_B" type="array">
+      <obj_property name="ElementShortName">ADDR_B[9:0]</obj_property>
+      <obj_property name="ObjectShortName">ADDR_B[9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/draw_ADDR_EDGE" type="array">
+      <obj_property name="ElementShortName">draw_ADDR_EDGE[9:0]</obj_property>
+      <obj_property name="ObjectShortName">draw_ADDR_EDGE[9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/u_cmd_draw_tri/ADDR_EDGE" type="array">
+      <obj_property name="ElementShortName">ADDR_EDGE[9:0]</obj_property>
+      <obj_property name="ObjectShortName">ADDR_EDGE[9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/u_cmd_draw_tri/edge_data" type="array">
+      <obj_property name="ElementShortName">edge_data[47:0]</obj_property>
+      <obj_property name="ObjectShortName">edge_data[47:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cmd_test_tb/DUT/u_edge_buffer/Q_B" type="array">
+      <obj_property name="ElementShortName">Q_B[47:0]</obj_property>
+      <obj_property name="ObjectShortName">Q_B[47:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/cmd_test_tb/DUT/u_cmd_draw_tri/edge_addr_lat" type="array">
       <obj_property name="ElementShortName">edge_addr_lat[15:0]</obj_property>
@@ -274,6 +305,11 @@
       <obj_property name="label">Raster</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_rasterization/addr_lin" type="array">
+         <obj_property name="ElementShortName">addr_lin[31:0]</obj_property>
+         <obj_property name="ObjectShortName">addr_lin[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
       <wvobject fp_name="/cmd_test_tb/DUT/u_vram/ADDR_B" type="array">
          <obj_property name="ElementShortName">ADDR_B[17:0]</obj_property>
          <obj_property name="ObjectShortName">ADDR_B[17:0]</obj_property>
@@ -288,8 +324,8 @@
          <obj_property name="UseCustomSignalColor">true</obj_property>
       </wvobject>
       <wvobject fp_name="/cmd_test_tb/DUT/u_rasterization/addr_vram" type="array">
-         <obj_property name="ElementShortName">addr_vram[15:0]</obj_property>
-         <obj_property name="ObjectShortName">addr_vram[15:0]</obj_property>
+         <obj_property name="ElementShortName">addr_vram[17:0]</obj_property>
+         <obj_property name="ObjectShortName">addr_vram[17:0]</obj_property>
          <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
          <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
@@ -319,6 +355,19 @@
          <obj_property name="ObjectShortName">WE_B</obj_property>
          <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_vram/ADDR_A" type="array">
+         <obj_property name="ElementShortName">ADDR_A[17:0]</obj_property>
+         <obj_property name="ObjectShortName">ADDR_A[17:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_vram/ADDR_B" type="array">
+         <obj_property name="ElementShortName">ADDR_B[17:0]</obj_property>
+         <obj_property name="ObjectShortName">ADDR_B[17:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cmd_test_tb/DUT/u_vram/DATA_B" type="array">
+         <obj_property name="ElementShortName">DATA_B[7:0]</obj_property>
+         <obj_property name="ObjectShortName">DATA_B[7:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/cmd_test_tb/DUT/rt_we_vram" type="logic">
          <obj_property name="ElementShortName">rt_we_vram</obj_property>

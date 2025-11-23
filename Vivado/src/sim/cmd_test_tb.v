@@ -138,17 +138,17 @@ module cmd_test_tb;
 
     task automatic load_edge;
         begin
-            log_hdr("LOAD_EDGE (head, cmd=0x05, START=0x0000, COUNT=1)");
+            log_hdr("LOAD_EDGE (head, cmd=0x05, START=0x0001, COUNT=1)");
             send_byte(8'hAA);
             send_byte(8'h0B);
             send_byte(8'h05);
             send_byte(8'h01);
             send_byte(8'h00);
-            send_byte(8'h00);
+            send_byte(8'h01);
             send_byte(8'h00); send_byte(8'h01);
             send_byte(8'h00); send_byte(8'h02);
             send_byte(8'h00); send_byte(8'h03);
-            send_byte(8'hD2);
+            send_byte(8'h0D);
         end
     endtask
 
@@ -205,7 +205,6 @@ module cmd_test_tb;
             send_byte(8'hE0);                   // RGB332 = full red
             send_byte(8'h07);                   // uv
 
-            // CRC8 для новых данных = 0x88
             send_byte(8'h88);
 
             // log_hdr("LOAD_VERTEX_BEGIN (cmd=0x03, START=0x0001, COUNT=3)");
@@ -362,28 +361,15 @@ module cmd_test_tb;
         #(20*CLK_PERIOD_NS);
         #(5*BIT_TIME);
 
-        // clear();
+        load_vertex_begin();
+        load_edge();
+        draw_tri();
         // swap();
-        // clear();
+
         // status();
 
-        //load_vertex_begin();
-        //load_vertex_begin_alt();
-        //load_edge();
-        //load_edge_cont();
         // draw_tri();
         // swap();
-        // status();
-
-        load_vertex_begin();
-        status();
-        load_edge();
-        status();
-        //clear();
-        draw_tri();
-        status();
-        swap();
-        status();
 
         #(100*BIT_TIME);
         $display("---- CMD TB finished @ %t ----", $time);

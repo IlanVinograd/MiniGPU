@@ -45,12 +45,13 @@ module cmd_draw_tri #(
     localparam [3:0]
         IDLE  =   0,
         FETCH =   1,
-        V0_A   =  2, V0_LET  = 3, V0_R = 4,
-        V1_LET =  5, V1_R = 6,
-        V2_LET =  7, V2_R = 8,
-        VT_S   =  9, VT_WAIT = 10,
-        TS_WAIT = 11, RT_WAIT = 12, 
-        DONE = 13;
+        WAIT_FETCH = 2,
+        V0_A   =  3, V0_LET  = 4, V0_R = 5,
+        V1_LET =  6, V1_R = 7,
+        V2_LET =  8, V2_R = 9,
+        VT_S   =  10, VT_WAIT = 11,
+        TS_WAIT = 12, RT_WAIT = 13, 
+        DONE = 14;
 
     reg [3:0] stage;
     reg [15:0] edge_addr_lat;
@@ -94,39 +95,43 @@ module cmd_draw_tri #(
                 end
 
                 FETCH: begin
-                    edge_data_lat <= edge_data;
                     stage <= 4'd2;
+                end
+
+                WAIT_FETCH: begin
+                    edge_data_lat <= edge_data;
+                    stage <= 4'd3;
                 end
 
                 V0_A: begin
                     ADDR_VERTEX <= edge_data_lat[ADDR_W-1:0];
-                    stage <= 4'd3;
+                    stage <= 4'd4;
                 end
                 V0_LET: begin
-                    stage <= 4'd4;
+                    stage <= 4'd5;
                 end
 
                 V0_R: begin
                     vertex_data_lat[0] <= vertex_data;
                     ADDR_VERTEX <= edge_data_lat[16 + ADDR_W - 1 -: ADDR_W];
-                    stage <= 4'd5;
+                    stage <= 4'd6;
                 end
                 V1_LET: begin
-                    stage <= 4'd6;
+                    stage <= 4'd7;
                 end
 
                 V1_R: begin
                     vertex_data_lat[1] <= vertex_data;
                     ADDR_VERTEX <= edge_data_lat[32 + ADDR_W - 1 -: ADDR_W];
-                    stage <= 4'd7;
+                    stage <= 4'd8;
                 end
                 V2_LET: begin
-                    stage <= 4'd8;
+                    stage <= 4'd9;
                 end
 
                 V2_R: begin
                     vertex_data_lat[2] <= vertex_data;
-                    stage <= 4'd9;
+                    stage <= 4'd10;
                 end
 
                 VT_S: begin

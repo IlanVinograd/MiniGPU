@@ -29,7 +29,7 @@ module uart_pc_fpga #(
     localparam integer OPCODE_BYTE = 2;
     localparam integer ARG0_BYTE   = 3;
 
-    localparam integer RAST_SIZE    = 49152;
+    localparam integer RAST_SIZE    = 49_152;
     localparam integer RAST_ADDR_W  = $clog2(RAST_SIZE);
 
     wire [7:0] rx_data;
@@ -208,7 +208,7 @@ module uart_pc_fpga #(
         .BUSY           (clear_busy)
     );
 
-    wire [15:0] draw_edge_addr16 = { fifo_data[8*(ARG0_BYTE+1) +: 8], fifo_data[8*ARG0_BYTE +: 8] };
+    wire [15:0] draw_edge_addr16 = { fifo_data[8*ARG0_BYTE +: 8], fifo_data[8*(ARG0_BYTE+1) +: 8] };
     wire [47:0] edge_q_b;
     wire [63:0] vertex_q_b;
 
@@ -285,11 +285,11 @@ module uart_pc_fpga #(
         .area_zero(area_zero)
     );
 
-    wire [RAST_ADDR_W-1:0] rt_addr_vram;
+    wire [17:0] rt_addr_vram;
     wire [7:0]            rt_data_vram;
     wire                   rt_we_vram;
 
-    wire [RAST_ADDR_W-1:0] rt_addr_z;
+    wire [15:0] rt_addr_z;
     wire [15:0]            rt_data_z;
     wire                   rt_we_z;
 
@@ -312,6 +312,7 @@ module uart_pc_fpga #(
         .in_v2    (vt_out_v2),
 
         .vp_width (vp_width),
+        .side(side),
 
         .addr_vram(rt_addr_vram),
         .data_vram(rt_data_vram),
@@ -445,7 +446,7 @@ module uart_pc_fpga #(
 
     wire [7:0] rt_color = rt_data_vram;
 
-    assign vram_addr_b_mux = (rt_we_vram) ? {1'b0, rt_addr_vram} : clear_addr_b;
+    assign vram_addr_b_mux = (rt_we_vram) ? rt_addr_vram : clear_addr_b;
     assign vram_data_b_mux = (rt_we_vram) ? rt_color           : clear_data_b;
     assign vram_we_b_mux   = rt_we_vram | clear_we_b;
 
